@@ -1,0 +1,1635 @@
+#!/usr/bin/env python3
+from __future__ import annotations
+
+import argparse
+import io
+import json
+import os
+import re
+from datetime import datetime, timezone
+from pathlib import Path
+from typing import Any
+
+from dotenv import load_dotenv
+from google import genai
+from google.genai import errors as genai_errors
+from google.genai import types
+from PIL import Image
+
+try:
+    from pdf2image import convert_from_path
+except ImportError:  # Optional import; only needed in stage2.
+    convert_from_path = None
+
+try:
+    from pypdf import PdfReader, PdfWriter
+except ImportError:  # Optional import; only needed when --max-pages is used in stage1.
+    PdfReader = None
+    PdfWriter = None
+
+
+DEFAULT_MODEL = "gemini-2.5-flash"
+
+
+LETTER_LAYOUT = {
+    "A": (0, 0),
+    "D": (0, 1),
+    "B": (1, 0),
+    "E": (1, 1),
+    "C": (2, 0),
+}
+
+
+PROMPT_STAGE1 = """
+Voce recebera um PDF completo de prova.
+
+Objetivo desta etapa (um unico prompt):
+1) Identificar textos de apoio que pertencem a mais de uma questao.
+2) Identificar questoes em que as alternativas sao visuais (imagem, grafico, tabela, diagrama).
+3) Identificar imagens/figuras que ocupam mais de uma coluna ou uma largura muito grande.
+4) Detectar fragmentos matematicos e registrar em formato LaTeX quando houver.
+
+Retorne SOMENTE JSON valido, sem markdown, no formato:
+{
+  "shared_contexts": [
+    {
+      "context_id": "ctx_001",
+      "text_excerpt": "trecho curto literal",
+      "question_ids": [14, 15],
+      "page_numbers": [7],
+      "confidence": 0.0
+    }
+  ],
+  "questions_with_image_or_table_alternatives": [14, 31],
+  "wide_visuals": [
+    {
+      "page_number": 7,
+      "description": "mapa do brasil",
+      "related_question_ids": [14],
+      "spans_multiple_columns": true,
+      "confidence": 0.0
+    }
+  ],
+  "question_hints": [
+    {
+      "question_id": 14,
+      "probable_page": 7,
+      "has_shared_context": true,
+      "has_visual_alternatives": false,
+      "has_wide_visual": true
+    }
+    ],
+    "latex_fragments": [
+        {
+            "snippet_latex": "x^2 + y^2 = z^2",
+            "related_question_ids": [14],
+            "page_numbers": [7],
+            "confidence": 0.0
+        }
+  ]
+}
+
+Regras:
+- Use apenas inteiros para question_id e page_number.
+- Nao invente questoes nao existentes.
+- Se nao houver dado em uma chave, retorne lista vazia.
+- Para matematica, prefira sintaxe LaTeX limpa em snippet_latex.
+""".strip()
+
+
+PROMPT_STAGE2_TEMPLATE = """
+Voce recebera UMA imagem de pagina de prova e um bloco de hints da etapa 1.
+
+Objetivo desta etapa:
+- Definir como segmentar a pagina para extracao de questoes.
+- Preferir 2 recortes em left/right quando houver duas colunas de questoes.
+- Se houver conteudo visual que cruza as colunas, marcar pagina inteira.
+
+Hints da etapa 1 (JSON):
+__HINTS_JSON__
+
+Retorne SOMENTE JSON valido neste formato:
+{
+    "page_number": __PAGE_NUMBER__,
+    "layout_mode": "split_lr" | "full_page",
+  "reason": "texto curto",
+  "segments": [
+    {
+            "segment_id": "p__PAGE_NUMBER_PADDED___l",
+      "bbox": [ymin, xmin, ymax, xmax],
+      "question_ids": [13, 14],
+      "notes": "texto curto"
+    }
+  ]
+}
+
+Regras do bbox:
+- Coordenadas normalizadas no intervalo [0,1000].
+- Inteiros.
+- ymin < ymax e xmin < xmax.
+- Em split_lr, normalmente use dois segmentos cobrindo coluna esquerda e coluna direita.
+- Em full_page, use um unico segmento cobrindo a pagina relevante.
+- So use full_page se separar left/right puder cortar uma imagem/tabela que ocupa as duas colunas.
+""".strip()
+
+
+PROMPT_STAGE3_TEMPLATE = """
+Voce recebera uma imagem de questao.
+
+Objetivo:
+- Encontrar SOMENTE a area da ilustracao principal (grafico, tabela, mapa, figura, foto).
+- Incluir titulo, legenda e credito/fonte quando estiverem imediatamente associados a ilustracao.
+- Excluir enunciado e alternativas textuais.
+
+Contexto opcional da etapa 2:
+__STAGE2_HINT__
+
+Retorne SOMENTE JSON valido neste formato:
+{
+  "bbox": [ymin, xmin, ymax, xmax],
+  "visual_type": "mapa|grafico|tabela|figura|foto|outro",
+  "confidence": 0.0
+}
+
+Regras:
+- Coordenadas normalizadas em [0,1000], inteiros.
+- ymin < ymax e xmin < xmax.
+- Se a imagem principal tiver legenda/fonte relevante logo acima/abaixo, amplie o bbox para preservar esse contexto.
+""".strip()
+
+
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _extract_json(text: str) -> dict[str, Any]:
+    cleaned = text.strip()
+    cleaned = re.sub(r"^```(?:json)?\\s*", "", cleaned)
+    cleaned = re.sub(r"\\s*```$", "", cleaned)
+
+    try:
+        payload = json.loads(cleaned)
+    except json.JSONDecodeError:
+        match = re.search(r"\{[\s\S]*\}", cleaned)
+        if not match:
+            raise ValueError("Resposta do Gemini nao contem JSON valido")
+        payload = json.loads(match.group(0))
+
+    if not isinstance(payload, dict):
+        raise ValueError("JSON retornado deve ser objeto")
+    return payload
+
+
+def _build_client() -> genai.Client:
+    api_key = os.getenv("GOOGLE_API_KEY")
+    if not api_key:
+        raise RuntimeError("GOOGLE_API_KEY nao encontrada no ambiente/.env")
+    return genai.Client(api_key=api_key)
+
+
+def _request_json(
+    client: genai.Client,
+    model: str,
+    contents: list[Any],
+    temperature: float = 0.0,
+) -> dict[str, Any]:
+    try:
+        response = client.models.generate_content(
+            model=model,
+            contents=contents,
+            config=types.GenerateContentConfig(
+                temperature=temperature,
+                response_mime_type="application/json",
+            ),
+        )
+    except genai_errors.ClientError as exc:
+        message = str(exc)
+        if "404 NOT_FOUND" in message:
+            raise RuntimeError(
+                "Modelo Gemini nao encontrado para generateContent. "
+                "Use gemini-2.5-flash ou gemini-2.0-flash."
+            ) from exc
+        if "429 RESOURCE_EXHAUSTED" in message:
+            raise RuntimeError(
+                "Cota da Gemini excedida para esta chave/projeto. "
+                "Verifique faturamento/limites e tente novamente depois."
+            ) from exc
+        raise
+
+    text = response.text or ""
+    if not text.strip():
+        raise ValueError("Resposta vazia do Gemini")
+    return _extract_json(text)
+
+
+def _save_json(path: Path, payload: dict[str, Any]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(payload, dict):
+        raise ValueError(f"Arquivo JSON invalido (esperado objeto): {path}")
+    return payload
+
+
+def _parse_pages(raw: str) -> list[int]:
+    pages: set[int] = set()
+    for chunk in raw.split(","):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+
+        if "-" in chunk:
+            start_str, end_str = chunk.split("-", maxsplit=1)
+            start = int(start_str)
+            end = int(end_str)
+            if end < start:
+                raise ValueError(f"Intervalo invalido em --pages: {chunk}")
+            for page in range(start, end + 1):
+                pages.add(page)
+        else:
+            pages.add(int(chunk))
+
+    if not pages:
+        raise ValueError("--pages vazio")
+    return sorted(pages)
+
+
+def _collect_target_pages(
+    stage1_payload: dict[str, Any],
+    pages_override: str | None,
+) -> list[int]:
+    if pages_override:
+        return _parse_pages(pages_override)
+
+    pages: set[int] = set()
+
+    for item in stage1_payload.get("wide_visuals", []):
+        if isinstance(item, dict):
+            page = item.get("page_number")
+            if isinstance(page, int) and page > 0:
+                pages.add(page)
+
+    for item in stage1_payload.get("question_hints", []):
+        if isinstance(item, dict):
+            page = item.get("probable_page")
+            if isinstance(page, int) and page > 0:
+                pages.add(page)
+
+    if not pages:
+        raise ValueError(
+            "Nao foi possivel inferir paginas alvo pela etapa 1. "
+            "Passe --pages (ex: 7,8,10-12)."
+        )
+
+    return sorted(pages)
+
+
+def _extract_int_list(values: Any) -> list[int]:
+    if not isinstance(values, list):
+        return []
+
+    parsed: list[int] = []
+    for value in values:
+        if isinstance(value, int):
+            parsed.append(value)
+            continue
+
+        if isinstance(value, str):
+            stripped = value.strip()
+            if stripped.isdigit():
+                parsed.append(int(stripped))
+
+    return parsed
+
+
+def _clean_extracted_text(text: str) -> str:
+    text = text.replace("\u00ac", " ")
+    text = text.replace("\r\n", "\n").replace("\r", "\n")
+    text = re.sub(
+        r"Concurso\s+Vestibular\s+FUVEST\s+\d{4}\s*–\s*Prova\s+V\d",
+        "",
+        text,
+    )
+    text = text.replace("#####", "")
+    text = re.sub(r"[ \t]+", " ", text)
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
+
+
+def _question_pages_from_stage2(stage2_payload: dict[str, Any]) -> dict[int, list[int]]:
+    mapping: dict[int, set[int]] = {}
+
+    pages = stage2_payload.get("pages", [])
+    if not isinstance(pages, list):
+        return {}
+
+    for page in pages:
+        if not isinstance(page, dict):
+            continue
+
+        page_number = page.get("page_number")
+        if not isinstance(page_number, int):
+            continue
+
+        for segment in page.get("segments", []):
+            if not isinstance(segment, dict):
+                continue
+            for qid in _extract_int_list(segment.get("question_ids", [])):
+                mapping.setdefault(qid, set()).add(page_number)
+
+    return {qid: sorted(list(page_set)) for qid, page_set in mapping.items()}
+
+
+def _extract_alternatives_from_block(block: str) -> tuple[str, dict[str, str]]:
+    alt_pattern = re.compile(r"\(([A-E])\)\s*(.*?)(?=(?:\([A-E]\)\s)|$)", re.DOTALL)
+    matches = list(alt_pattern.finditer(block))
+    if not matches:
+        return _clean_extracted_text(block), {}
+
+    enunciado = _clean_extracted_text(block[: matches[0].start()])
+    alternativas: dict[str, str] = {}
+    for match in matches:
+        letter = match.group(1).strip().upper()
+        content = _clean_extracted_text(match.group(2))
+        alternativas[letter] = content
+
+    return enunciado, alternativas
+
+
+def run_questions_text_local(
+    pdf_path: Path,
+    stage2_path: Path,
+    output: Path,
+    stage1_path: Path | None = None,
+) -> None:
+    if PdfReader is None:
+        raise RuntimeError("pypdf nao instalado. Instale com: pip install pypdf")
+
+    stage2_payload = _load_json(stage2_path)
+    pages = stage2_payload.get("pages", [])
+    if not isinstance(pages, list) or not pages:
+        raise ValueError("Stage2 invalido para extracao local de texto")
+
+    page_numbers = [
+        page.get("page_number")
+        for page in pages
+        if isinstance(page, dict) and isinstance(page.get("page_number"), int)
+    ]
+    if not page_numbers:
+        raise ValueError("Stage2 sem page_number valido")
+
+    start_page = min(page_numbers)
+    end_page = max(page_numbers)
+
+    if stage1_path and stage1_path.exists():
+        stage1_payload = _load_json(stage1_path)
+        page_scope = stage1_payload.get("page_scope")
+        if isinstance(page_scope, dict):
+            scope_start = page_scope.get("start_page")
+            scope_end = page_scope.get("end_page")
+            if isinstance(scope_start, int) and scope_start > 0:
+                start_page = max(start_page, scope_start)
+            if isinstance(scope_end, int) and scope_end > 0:
+                end_page = min(end_page, scope_end)
+
+    reader = PdfReader(str(pdf_path))
+    total_pages = len(reader.pages)
+    if total_pages == 0:
+        raise ValueError("PDF sem paginas")
+
+    end_page = min(end_page, total_pages)
+    if start_page < 1 or end_page < start_page:
+        raise ValueError("Intervalo de paginas invalido para extracao local")
+
+    question_ids = _question_ids_from_stage2(stage2_payload)
+    question_pages = _question_pages_from_stage2(stage2_payload)
+
+    chunks: list[str] = []
+    for page_number in range(start_page, end_page + 1):
+        page_text = reader.pages[page_number - 1].extract_text() or ""
+        page_text = _clean_extracted_text(page_text)
+        chunks.append(f"\n\n[[PAGE_{page_number}]]\n\n{page_text}\n")
+
+    full_text = "\n".join(chunks)
+    marker_pattern = re.compile(r"\{\s*0*(\d{1,3})\s*\}")
+    marker_matches = list(marker_pattern.finditer(full_text))
+    if not marker_matches:
+        raise ValueError("Nao foram encontrados marcadores de questao no texto extraido")
+
+    first_markers: dict[int, re.Match[str]] = {}
+    for match in marker_matches:
+        qid = int(match.group(1))
+        if qid not in first_markers:
+            first_markers[qid] = match
+
+    target_ids: list[int]
+    if question_ids:
+        target_ids = [qid for qid in question_ids if qid in first_markers]
+    else:
+        target_ids = sorted(first_markers.keys())
+
+    if not target_ids:
+        raise ValueError("Nenhuma questao alvo encontrada no texto extraido")
+
+    questions: list[dict[str, Any]] = []
+    for idx, qid in enumerate(target_ids):
+        start_match = first_markers[qid]
+        start_index = start_match.end()
+
+        end_index = len(full_text)
+        for next_qid in target_ids[idx + 1 :]:
+            next_match = first_markers[next_qid]
+            if next_match.start() > start_index:
+                end_index = next_match.start()
+                break
+
+        raw_block = full_text[start_index:end_index].strip()
+        raw_block = re.sub(r"\[\[PAGE_\d+\]\]", "", raw_block)
+
+        enunciado, alternativas = _extract_alternatives_from_block(raw_block)
+        questions.append(
+            {
+                "question_id": qid,
+                "page_numbers": question_pages.get(qid, []),
+                "enunciado": enunciado,
+                "alternativas": alternativas,
+            }
+        )
+
+    payload = {
+        "source_pdf": str(pdf_path),
+        "source_stage2": str(stage2_path),
+        "page_range": {
+            "start_page": start_page,
+            "end_page": end_page,
+        },
+        "questions": questions,
+    }
+
+    _save_json(output, payload)
+    print(f"Texto local salvo em: {output}")
+    print(f"Questoes com texto extraidas: {len(questions)}")
+
+
+def _bbox_pixels_to_norm(
+    bbox: tuple[int, int, int, int], width: int, height: int
+) -> list[int]:
+    left, top, right, bottom = bbox
+    return [
+        int((top / height) * 1000),
+        int((left / width) * 1000),
+        int((bottom / height) * 1000),
+        int((right / width) * 1000),
+    ]
+
+
+def _grid_bboxes_for_visual_alternatives(
+    width: int,
+    height: int,
+) -> dict[str, tuple[int, int, int, int]]:
+    # Heuristica local para a regiao de alternativas visuais: metade inferior da pagina.
+    y0 = int(height * 0.50)
+    y1 = int(height * 0.95)
+    x0 = int(width * 0.10)
+    x1 = int(width * 0.92)
+
+    region_w = max(1, x1 - x0)
+    region_h = max(1, y1 - y0)
+
+    col_gap = int(region_w * 0.05)
+    row_gap = int(region_h * 0.04)
+
+    col_w = (region_w - col_gap) // 2
+    row_h = (region_h - 2 * row_gap) // 3
+
+    boxes: dict[str, tuple[int, int, int, int]] = {}
+    for letter, (row_idx, col_idx) in LETTER_LAYOUT.items():
+        left = x0 + col_idx * (col_w + col_gap)
+        top = y0 + row_idx * (row_h + row_gap)
+        right = left + col_w
+        bottom = top + row_h
+
+        left = max(0, min(left, width - 1))
+        top = max(0, min(top, height - 1))
+        right = max(left + 1, min(right, width))
+        bottom = max(top + 1, min(bottom, height))
+        boxes[letter] = (left, top, right, bottom)
+
+    return boxes
+
+
+def _normalize_stage2_page_payload(
+    payload: dict[str, Any],
+    page_number: int,
+) -> dict[str, Any]:
+    layout_mode = str(payload.get("layout_mode", "")).strip().lower()
+    if layout_mode == "split_2":
+        layout_mode = "split_lr"
+    if layout_mode not in {"split_lr", "full_page"}:
+        layout_mode = "full_page"
+
+    segments = payload.get("segments")
+    if not isinstance(segments, list):
+        raise ValueError(
+            f"Stage2 pagina {page_number}: campo segments ausente ou invalido"
+        )
+
+    normalized_segments: list[dict[str, Any]] = []
+    for index, segment in enumerate(segments):
+        if not isinstance(segment, dict):
+            continue
+
+        bbox = _validate_bbox({"bbox": segment.get("bbox")})
+
+        if layout_mode == "split_lr":
+            default_suffix = "l" if index == 0 else "r"
+        else:
+            default_suffix = "full"
+
+        raw_segment_id = segment.get("segment_id")
+        if isinstance(raw_segment_id, str) and raw_segment_id.strip():
+            segment_id = raw_segment_id.strip()
+        else:
+            segment_id = f"p{page_number:03d}_{default_suffix}"
+
+        normalized_segments.append(
+            {
+                "segment_id": segment_id,
+                "bbox": list(bbox),
+                "question_ids": _extract_int_list(segment.get("question_ids", [])),
+                "notes": str(segment.get("notes", "")).strip(),
+            }
+        )
+
+    if not normalized_segments:
+        raise ValueError(f"Stage2 pagina {page_number}: nenhum segmento valido")
+
+    return {
+        "page_number": page_number,
+        "layout_mode": layout_mode,
+        "reason": str(payload.get("reason", "")).strip(),
+        "segments": normalized_segments,
+    }
+
+
+def _build_stage1_pdf_part(
+    pdf_path: Path,
+    max_pages: int | None,
+) -> tuple[types.Part, dict[str, int]]:
+    if max_pages is None:
+        pdf_bytes = pdf_path.read_bytes()
+        return (
+            types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf"),
+            {"start_page": 1, "end_page": -1, "total_pdf_pages": -1},
+        )
+
+    if max_pages <= 0:
+        raise ValueError("--max-pages deve ser maior que 0")
+
+    if PdfReader is None or PdfWriter is None:
+        raise RuntimeError(
+            "pypdf nao instalado. Instale com: pip install pypdf"
+        )
+
+    reader = PdfReader(str(pdf_path))
+    total_pages = len(reader.pages)
+    if total_pages == 0:
+        raise ValueError("PDF sem paginas")
+
+    end_page = min(max_pages, total_pages)
+    writer = PdfWriter()
+    for page_index in range(end_page):
+        writer.add_page(reader.pages[page_index])
+
+    buffer = io.BytesIO()
+    writer.write(buffer)
+    pdf_bytes = buffer.getvalue()
+
+    return (
+        types.Part.from_bytes(data=pdf_bytes, mime_type="application/pdf"),
+        {"start_page": 1, "end_page": end_page, "total_pdf_pages": total_pages},
+    )
+
+
+def _validate_bbox(payload: dict[str, Any]) -> tuple[int, int, int, int]:
+    bbox = payload.get("bbox")
+    if not isinstance(bbox, list) or len(bbox) != 4:
+        raise ValueError(f"bbox invalido: {bbox}")
+
+    try:
+        ymin, xmin, ymax, xmax = [int(v) for v in bbox]
+    except (TypeError, ValueError) as exc:
+        raise ValueError(f"bbox deve conter 4 inteiros: {bbox}") from exc
+
+    for coord in (ymin, xmin, ymax, xmax):
+        if coord < 0 or coord > 1000:
+            raise ValueError(f"Coordenada fora do intervalo [0,1000]: {coord}")
+
+    if ymin >= ymax or xmin >= xmax:
+        raise ValueError(f"bbox sem area valida: {bbox}")
+
+    return ymin, xmin, ymax, xmax
+
+
+def _bbox_to_pixels(
+    bbox: tuple[int, int, int, int], width: int, height: int
+) -> tuple[int, int, int, int]:
+    ymin, xmin, ymax, xmax = bbox
+    left = int((xmin / 1000) * width)
+    top = int((ymin / 1000) * height)
+    right = int((xmax / 1000) * width)
+    bottom = int((ymax / 1000) * height)
+
+    left = max(0, min(left, width - 1))
+    right = max(left + 1, min(right, width))
+    top = max(0, min(top, height - 1))
+    bottom = max(top + 1, min(bottom, height))
+    return left, top, right, bottom
+
+
+def _filter_stage1_hints_for_page(
+    stage1_payload: dict[str, Any],
+    page_number: int,
+) -> dict[str, Any]:
+    shared = []
+    for item in stage1_payload.get("shared_contexts", []):
+        if not isinstance(item, dict):
+            continue
+        pages = item.get("page_numbers")
+        if isinstance(pages, list) and page_number in pages:
+            shared.append(item)
+
+    wide = []
+    for item in stage1_payload.get("wide_visuals", []):
+        if isinstance(item, dict) and item.get("page_number") == page_number:
+            wide.append(item)
+
+    hints = []
+    for item in stage1_payload.get("question_hints", []):
+        if isinstance(item, dict) and item.get("probable_page") == page_number:
+            hints.append(item)
+
+    return {
+        "page_number": page_number,
+        "shared_contexts": shared,
+        "wide_visuals": wide,
+        "question_hints": hints,
+        "questions_with_image_or_table_alternatives": stage1_payload.get(
+            "questions_with_image_or_table_alternatives", []
+        ),
+    }
+
+
+def _extract_question_number_from_filename(path: Path) -> int | None:
+    match = re.search(r"questao_(\d+)", path.stem)
+    if not match:
+        return None
+    return int(match.group(1))
+
+
+def _stage2_hint_for_question(stage2_payload: dict[str, Any], question_number: int) -> str:
+    pages = stage2_payload.get("pages", [])
+    if not isinstance(pages, list):
+        return "Sem hint da etapa 2"
+
+    for page_item in pages:
+        if not isinstance(page_item, dict):
+            continue
+        for segment in page_item.get("segments", []):
+            if not isinstance(segment, dict):
+                continue
+            qids = segment.get("question_ids", [])
+            if isinstance(qids, list) and question_number in qids:
+                return json.dumps(segment, ensure_ascii=False)
+
+    return "Sem hint da etapa 2"
+
+
+def _question_ids_from_stage2(stage2_payload: dict[str, Any]) -> list[int]:
+    question_ids: set[int] = set()
+
+    pages = stage2_payload.get("pages", [])
+    if not isinstance(pages, list):
+        return []
+
+    for page_item in pages:
+        if not isinstance(page_item, dict):
+            continue
+        for segment in page_item.get("segments", []):
+            if not isinstance(segment, dict):
+                continue
+            for question_id in _extract_int_list(segment.get("question_ids", [])):
+                question_ids.add(question_id)
+
+    return sorted(question_ids)
+
+
+def run_stage1(
+    pdf_path: Path,
+    output: Path,
+    model: str,
+    max_pages: int | None,
+) -> None:
+    client = _build_client()
+
+    pdf_part, page_scope = _build_stage1_pdf_part(pdf_path, max_pages)
+
+    payload = _request_json(
+        client=client,
+        model=model,
+        contents=[PROMPT_STAGE1, pdf_part],
+    )
+
+    enriched = {
+        "stage": "stage1",
+        "model": model,
+        "created_at": _now_iso(),
+        "source_pdf": str(pdf_path),
+        "page_scope": page_scope,
+        "data": payload,
+    }
+    _save_json(output, enriched)
+    print(f"Stage1 salvo em: {output}")
+
+
+def run_stage2(
+    pdf_path: Path,
+    stage1_path: Path,
+    output: Path,
+    model: str,
+    pages_override: str | None,
+    dpi: int,
+) -> None:
+    if convert_from_path is None:
+        raise RuntimeError(
+            "pdf2image nao instalado. Instale com: pip install pdf2image"
+        )
+
+    stage1_payload = _load_json(stage1_path)
+    stage1_data = stage1_payload.get("data")
+    if not isinstance(stage1_data, dict):
+        raise ValueError("Arquivo stage1 invalido: chave data ausente")
+
+    target_pages = _collect_target_pages(stage1_data, pages_override)
+    client = _build_client()
+
+    page_results: list[dict[str, Any]] = []
+    for page_number in target_pages:
+        page_images = convert_from_path(
+            str(pdf_path),
+            first_page=page_number,
+            last_page=page_number,
+            dpi=dpi,
+        )
+        if not page_images:
+            raise RuntimeError(f"Falha ao renderizar pagina {page_number}")
+
+        page_image = page_images[0]
+        page_hints = _filter_stage1_hints_for_page(stage1_data, page_number)
+        prompt = (
+            PROMPT_STAGE2_TEMPLATE
+            .replace("__HINTS_JSON__", json.dumps(page_hints, ensure_ascii=False))
+            .replace("__PAGE_NUMBER__", str(page_number))
+            .replace("__PAGE_NUMBER_PADDED__", f"{page_number:03d}")
+        )
+
+        raw_page_payload = _request_json(
+            client=client,
+            model=model,
+            contents=[prompt, page_image],
+        )
+        page_payload = _normalize_stage2_page_payload(raw_page_payload, page_number)
+        page_results.append(page_payload)
+        print(f"Stage2 pagina {page_number}: OK")
+
+    enriched = {
+        "stage": "stage2",
+        "model": model,
+        "created_at": _now_iso(),
+        "source_pdf": str(pdf_path),
+        "source_stage1": str(stage1_path),
+        "pages": page_results,
+    }
+    _save_json(output, enriched)
+    print(f"Stage2 salvo em: {output}")
+
+
+def run_stage3(
+    question_images_dir: Path,
+    output_dir: Path,
+    output_metadata: Path,
+    model: str,
+    stage2_path: Path | None,
+    only_stage2_questions: bool,
+    resume: bool,
+    limit: int | None,
+) -> None:
+    client = _build_client()
+
+    stage2_payload: dict[str, Any] = {}
+    if stage2_path:
+        stage2_payload = _load_json(stage2_path)
+
+    image_paths = sorted(question_images_dir.glob("questao_*.png"))
+
+    filtered_question_ids: list[int] | None = None
+    if stage2_payload and only_stage2_questions:
+        filtered_question_ids = _question_ids_from_stage2(stage2_payload)
+        if not filtered_question_ids:
+            raise ValueError(
+                "Stage2 nao retornou question_ids para filtrar o stage3. "
+                "Use --all-questions para ignorar esse filtro."
+            )
+
+        allowed = set(filtered_question_ids)
+        filtered_image_paths: list[Path] = []
+        for image_path in image_paths:
+            question_number = _extract_question_number_from_filename(image_path)
+            if question_number is not None and question_number in allowed:
+                filtered_image_paths.append(image_path)
+        image_paths = filtered_image_paths
+
+    if limit is not None:
+        image_paths = image_paths[:limit]
+
+    if not image_paths:
+        raise ValueError(
+            f"Nenhuma imagem de questao encontrada em: {question_images_dir}"
+        )
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    items: list[dict[str, Any]] = []
+    if resume and output_metadata.exists():
+        previous = _load_json(output_metadata)
+        previous_items = previous.get("items")
+        if isinstance(previous_items, list):
+            items = [item for item in previous_items if isinstance(item, dict)]
+
+    processed_ids = {
+        item.get("question_id")
+        for item in items
+        if isinstance(item.get("question_id"), int)
+    }
+
+    def save_progress() -> None:
+        enriched = {
+            "stage": "stage3",
+            "model": model,
+            "created_at": _now_iso(),
+            "question_images_dir": str(question_images_dir),
+            "output_dir": str(output_dir),
+            "source_stage2": str(stage2_path) if stage2_path else None,
+            "filtered_question_ids": filtered_question_ids,
+            "items": items,
+        }
+        _save_json(output_metadata, enriched)
+
+    for image_path in image_paths:
+        question_number = _extract_question_number_from_filename(image_path)
+        if question_number is None:
+            continue
+        if question_number in processed_ids:
+            continue
+
+        hint = (
+            _stage2_hint_for_question(stage2_payload, question_number)
+            if stage2_payload
+            else "Sem hint da etapa 2"
+        )
+        prompt = PROMPT_STAGE3_TEMPLATE.replace("__STAGE2_HINT__", hint)
+
+        with Image.open(image_path) as image:
+            width, height = image.size
+            payload = _request_json(
+                client=client,
+                model=model,
+                contents=[prompt, image],
+            )
+
+            bbox_norm = _validate_bbox(payload)
+            bbox_px = _bbox_to_pixels(bbox_norm, width, height)
+
+            cropped = image.crop(bbox_px)
+            output_name = f"questao_{question_number:02d}_ilustracao.png"
+            output_path = output_dir / output_name
+            cropped.save(output_path)
+
+        item = {
+            "question_id": question_number,
+            "input_image": str(image_path),
+            "output_image": str(output_path),
+            "bbox_norm_0_1000": list(bbox_norm),
+            "bbox_pixels": list(bbox_px),
+            "visual_type": payload.get("visual_type"),
+            "confidence": payload.get("confidence"),
+        }
+        items.append(item)
+        processed_ids.add(question_number)
+        save_progress()
+        print(f"Stage3 questao {question_number}: OK")
+
+    save_progress()
+    print(f"Stage3 metadados salvos em: {output_metadata}")
+
+
+def run_stage3_local_alternatives(
+    stage1_path: Path,
+    question_images_dir: Path,
+    output_dir: Path,
+    output_metadata: Path,
+) -> None:
+    stage1_payload = _load_json(stage1_path)
+    stage1_data = stage1_payload.get("data")
+    if not isinstance(stage1_data, dict):
+        raise ValueError("Arquivo stage1 invalido: chave data ausente")
+
+    question_ids = sorted(
+        set(
+            _extract_int_list(
+                stage1_data.get("questions_with_image_or_table_alternatives", [])
+            )
+        )
+    )
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    items: list[dict[str, Any]] = []
+
+    for question_id in question_ids:
+        input_image = question_images_dir / f"questao_{question_id:02d}.png"
+        if not input_image.exists():
+            print(f"Stage3 local alts questao {question_id}: imagem nao encontrada")
+            continue
+
+        with Image.open(input_image) as image:
+            width, height = image.size
+            boxes = _grid_bboxes_for_visual_alternatives(width, height)
+
+            alternatives: dict[str, dict[str, Any]] = {}
+            for letter in ("A", "B", "C", "D", "E"):
+                bbox = boxes[letter]
+                output_image = output_dir / f"questao_{question_id:02d}_alt_{letter}.png"
+
+                image.crop(bbox).save(output_image)
+
+                alternatives[letter] = {
+                    "output_image": str(output_image),
+                    "bbox_pixels": list(bbox),
+                    "bbox_norm_0_1000": _bbox_pixels_to_norm(bbox, width, height),
+                }
+
+        items.append(
+            {
+                "question_id": question_id,
+                "input_image": str(input_image),
+                "mode": "grid_2x3_lower",
+                "alternatives": alternatives,
+            }
+        )
+        print(f"Stage3 local alts questao {question_id}: OK")
+
+    payload = {
+        "stage": "stage3_local_alternatives",
+        "created_at": _now_iso(),
+        "source_stage1": str(stage1_path),
+        "source_question_images_dir": str(question_images_dir),
+        "output_dir": str(output_dir),
+        "items": items,
+    }
+    _save_json(output_metadata, payload)
+    print(f"Stage3 local alts salvo em: {output_metadata}")
+
+
+def _load_optional_json(path: Path) -> dict[str, Any] | None:
+    if not path.exists():
+        return None
+    return _load_json(path)
+
+
+def _sync_viewer_template(output_dir: Path) -> Path | None:
+    root = Path(__file__).resolve().parent
+    template_candidates = [
+        root / "artifacts" / "latest" / "viewer_prova_estruturada.html",
+        root / "artifacts" / "test7" / "viewer_prova_estruturada.html",
+    ]
+
+    template_path: Path | None = None
+    for candidate in template_candidates:
+        if candidate.exists():
+            template_path = candidate
+            break
+
+    if template_path is None:
+        print(
+            "Aviso: template do viewer nao encontrado em "
+            f"{template_candidates[0]} nem {template_candidates[1]}. Arquivo HTML nao foi copiado."
+        )
+        return None
+
+    destination = output_dir / "viewer_prova_estruturada.html"
+    if template_path.resolve() == destination.resolve():
+        return destination
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text(template_path.read_text(encoding="utf-8"), encoding="utf-8")
+    print(f"Viewer HTML copiado para: {destination}")
+    return destination
+
+
+def _write_viewer_data_js(
+    merged_output_path: Path,
+    merged_payload: dict[str, Any],
+    visual_alternatives: dict[str, Any] | None,
+    stage2_path: Path | None,
+    questions_text_path: Path | None,
+) -> None:
+    destination_questions_path = merged_output_path.parent / "questoes_texto_local.json"
+
+    candidates: list[Path] = []
+    if questions_text_path is not None:
+        candidates.append(questions_text_path)
+    candidates.append(destination_questions_path)
+    if stage2_path is not None:
+        candidates.append(stage2_path.parent / "questoes_texto_local.json")
+
+    selected_questions_path: Path | None = None
+    for candidate in candidates:
+        if candidate.exists():
+            selected_questions_path = candidate
+            break
+
+    questions_payload: dict[str, Any] | None = None
+    if selected_questions_path is not None:
+        questions_payload = _load_json(selected_questions_path)
+        if selected_questions_path.resolve() != destination_questions_path.resolve():
+            _save_json(destination_questions_path, questions_payload)
+            print(
+                "Texto local copiado para viewer em: "
+                f"{destination_questions_path}"
+            )
+
+    viewer_data = {
+        "structured": merged_payload,
+        "questionsText": questions_payload,
+        "visualAlternatives": visual_alternatives,
+    }
+
+    js_path = merged_output_path.parent / "viewer_data.js"
+    js_content = "window.__VIEWER_DATA__ = " + json.dumps(
+        viewer_data,
+        ensure_ascii=False,
+    ) + ";\n"
+    js_path.write_text(js_content, encoding="utf-8")
+    print(f"Viewer data JS salvo em: {js_path}")
+
+
+def run_merge(
+    stage1_path: Path,
+    stage2_path: Path,
+    stage3_path: Path,
+    output: Path,
+    visual_alternatives_path: Path | None,
+    questions_text_path: Path | None,
+) -> None:
+    stage1 = _load_json(stage1_path)
+    stage2 = _load_json(stage2_path)
+    stage3 = _load_json(stage3_path)
+
+    resolved_visual_path = visual_alternatives_path
+    if resolved_visual_path is None:
+        candidate = stage3_path.parent / "alternativas_visuais_local.json"
+        if candidate.exists():
+            resolved_visual_path = candidate
+
+    visual_alternatives: dict[str, Any] | None = None
+    if resolved_visual_path is not None and resolved_visual_path.exists():
+        visual_alternatives = _load_json(resolved_visual_path)
+
+    resolved_questions_path = questions_text_path
+    if resolved_questions_path is None:
+        output_candidate = output.parent / "questoes_texto_local.json"
+        if output_candidate.exists():
+            resolved_questions_path = output_candidate
+    if resolved_questions_path is None:
+        stage2_candidate = stage2_path.parent / "questoes_texto_local.json"
+        if stage2_candidate.exists():
+            resolved_questions_path = stage2_candidate
+
+    questions_text_local: dict[str, Any] | None = None
+    if resolved_questions_path is not None and resolved_questions_path.exists():
+        questions_text_local = _load_json(resolved_questions_path)
+
+    shared_context_by_question: dict[int, list[dict[str, Any]]] = {}
+    for item in stage1.get("data", {}).get("shared_contexts", []):
+        if not isinstance(item, dict):
+            continue
+        for qid in item.get("question_ids", []):
+            if isinstance(qid, int):
+                shared_context_by_question.setdefault(qid, []).append(item)
+
+    latex_by_question: dict[int, list[dict[str, Any]]] = {}
+    for item in stage1.get("data", {}).get("latex_fragments", []):
+        if not isinstance(item, dict):
+            continue
+        for qid in item.get("related_question_ids", []):
+            if isinstance(qid, int):
+                latex_by_question.setdefault(qid, []).append(item)
+
+    visuals_by_question: dict[int, dict[str, Any]] = {}
+    for item in stage3.get("items", []):
+        if isinstance(item, dict):
+            qid = item.get("question_id")
+            if isinstance(qid, int):
+                visuals_by_question[qid] = item
+
+    visual_alts_by_question: dict[int, dict[str, Any]] = {}
+    if isinstance(visual_alternatives, dict):
+        for item in visual_alternatives.get("items", []):
+            if not isinstance(item, dict):
+                continue
+            qid = item.get("question_id")
+            if isinstance(qid, int):
+                visual_alts_by_question[qid] = item
+
+    all_question_ids = (
+        set(shared_context_by_question.keys())
+        | set(visuals_by_question.keys())
+        | set(latex_by_question.keys())
+        | set(visual_alts_by_question.keys())
+    )
+    structured_questions: list[dict[str, Any]] = []
+    for qid in sorted(all_question_ids):
+        structured_questions.append(
+            {
+                "question_id": qid,
+                "shared_contexts": shared_context_by_question.get(qid, []),
+                "latex_fragments": latex_by_question.get(qid, []),
+                "illustration": visuals_by_question.get(qid),
+                "visual_alternatives": visual_alts_by_question.get(qid),
+            }
+        )
+
+    merged = {
+        "created_at": _now_iso(),
+        "sources": {
+            "stage1": str(stage1_path),
+            "stage2": str(stage2_path),
+            "stage3": str(stage3_path),
+            "questions_text_local": (
+                str(resolved_questions_path) if resolved_questions_path else None
+            ),
+            "visual_alternatives_local": (
+                str(resolved_visual_path) if resolved_visual_path else None
+            ),
+        },
+        "stage1": stage1,
+        "stage2": stage2,
+        "stage3": stage3,
+        "questions_text_local": questions_text_local,
+        "visual_alternatives_local": visual_alternatives,
+        "structured_questions": structured_questions,
+    }
+
+    _save_json(output, merged)
+    _write_viewer_data_js(
+        merged_output_path=output,
+        merged_payload=merged,
+        visual_alternatives=visual_alternatives,
+        stage2_path=stage2_path,
+        questions_text_path=resolved_questions_path,
+    )
+    _sync_viewer_template(output.parent)
+    print(f"Merge salvo em: {output}")
+
+
+def _empty_stage3_payload(
+    stage2_path: Path,
+    question_images_dir: Path,
+    output_dir: Path,
+    model: str,
+) -> dict[str, Any]:
+    return {
+        "stage": "stage3",
+        "model": model,
+        "created_at": _now_iso(),
+        "question_images_dir": str(question_images_dir),
+        "output_dir": str(output_dir),
+        "source_stage2": str(stage2_path),
+        "filtered_question_ids": _question_ids_from_stage2(_load_json(stage2_path)),
+        "items": [],
+    }
+
+
+def run_pipeline(
+    pdf_path: Path,
+    artifacts_dir: Path,
+    question_images_dir: Path,
+    model: str,
+    max_pages: int | None,
+    pages_override: str | None,
+    stage3_limit: int | None,
+    skip_stage3: bool,
+) -> None:
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    stage1_path = artifacts_dir / "stage1_basico.json"
+    stage2_path = artifacts_dir / "stage2_page_plan.json"
+    stage3_output_dir = artifacts_dir / "ilustracoes"
+    stage3_path = artifacts_dir / "stage3_ilustracoes.json"
+    visual_alts_dir = artifacts_dir / "alternativas_visuais"
+    visual_alts_path = artifacts_dir / "alternativas_visuais_local.json"
+    questions_text_path = artifacts_dir / "questoes_texto_local.json"
+    merged_path = artifacts_dir / "prova_estruturada.json"
+
+    print("[pipeline] Stage1...")
+    run_stage1(
+        pdf_path=pdf_path,
+        output=stage1_path,
+        model=model,
+        max_pages=max_pages,
+    )
+
+    print("[pipeline] Stage2...")
+    run_stage2(
+        pdf_path=pdf_path,
+        stage1_path=stage1_path,
+        output=stage2_path,
+        model=model,
+        pages_override=pages_override,
+        dpi=220,
+    )
+
+    print("[pipeline] Texto local...")
+    try:
+        run_questions_text_local(
+            pdf_path=pdf_path,
+            stage2_path=stage2_path,
+            output=questions_text_path,
+            stage1_path=stage1_path,
+        )
+    except Exception as exc:
+        print(
+            "[pipeline] Aviso: falha na extracao local de texto "
+            f"({exc}). O viewer pode mostrar placeholders."
+        )
+
+    if skip_stage3:
+        print("[pipeline] Stage3 pulado por --skip-stage3")
+        _save_json(
+            stage3_path,
+            _empty_stage3_payload(
+                stage2_path=stage2_path,
+                question_images_dir=question_images_dir,
+                output_dir=stage3_output_dir,
+                model=model,
+            ),
+        )
+    else:
+        print("[pipeline] Stage3...")
+        try:
+            run_stage3(
+                question_images_dir=question_images_dir,
+                output_dir=stage3_output_dir,
+                output_metadata=stage3_path,
+                model=model,
+                stage2_path=stage2_path,
+                only_stage2_questions=True,
+                resume=True,
+                limit=stage3_limit,
+            )
+        except Exception as exc:
+            if not stage3_path.exists():
+                _save_json(
+                    stage3_path,
+                    _empty_stage3_payload(
+                        stage2_path=stage2_path,
+                        question_images_dir=question_images_dir,
+                        output_dir=stage3_output_dir,
+                        model=model,
+                    ),
+                )
+            print(f"[pipeline] Aviso: stage3 falhou ({exc}). Seguindo com merge parcial.")
+
+    print("[pipeline] Stage3 local alternatives...")
+    run_stage3_local_alternatives(
+        stage1_path=stage1_path,
+        question_images_dir=question_images_dir,
+        output_dir=visual_alts_dir,
+        output_metadata=visual_alts_path,
+    )
+
+    print("[pipeline] Merge...")
+    run_merge(
+        stage1_path=stage1_path,
+        stage2_path=stage2_path,
+        stage3_path=stage3_path,
+        output=merged_path,
+        visual_alternatives_path=visual_alts_path,
+        questions_text_path=questions_text_path,
+    )
+
+    print("[pipeline] Finalizado")
+    print(f"[pipeline] JSON final: {merged_path}")
+    print(f"[pipeline] Viewer data: {artifacts_dir / 'viewer_data.js'}")
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        description="Prototipo em 3 prompts com Gemini para estruturar prova"
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    stage1 = subparsers.add_parser("stage1", help="Prompt 1: leitura global do PDF")
+    stage1.add_argument("pdf_path", help="Caminho do PDF da prova")
+    stage1.add_argument(
+        "--output",
+        default="artifacts/stage1_basico.json",
+        help="JSON de saida do stage1",
+    )
+    stage1.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help=f"Modelo Gemini (default: {DEFAULT_MODEL})",
+    )
+    stage1.add_argument(
+        "--max-pages",
+        type=int,
+        default=None,
+        help="Limita stage1 para as primeiras N paginas do PDF",
+    )
+
+    stage2 = subparsers.add_parser(
+        "stage2",
+        help="Prompt 2: decidir split por pagina (2 partes ou pagina inteira)",
+    )
+    stage2.add_argument("pdf_path", help="Caminho do PDF da prova")
+    stage2.add_argument(
+        "--stage1",
+        default="artifacts/stage1_basico.json",
+        help="JSON gerado no stage1",
+    )
+    stage2.add_argument(
+        "--output",
+        default="artifacts/stage2_page_plan.json",
+        help="JSON de saida do stage2",
+    )
+    stage2.add_argument(
+        "--pages",
+        default=None,
+        help="Override manual de paginas (ex: 7,8,10-12)",
+    )
+    stage2.add_argument(
+        "--dpi",
+        type=int,
+        default=220,
+        help="DPI para render da pagina (default: 220)",
+    )
+    stage2.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help=f"Modelo Gemini (default: {DEFAULT_MODEL})",
+    )
+
+    stage3 = subparsers.add_parser(
+        "stage3",
+        help="Prompt 3: crop da ilustracao por imagem de questao",
+    )
+    stage3.add_argument(
+        "--question-images-dir",
+        default="banco_imagens_fuvest_final",
+        help="Diretorio com imagens questao_XX.png",
+    )
+    stage3.add_argument(
+        "--output-dir",
+        default="banco_imagens_fuvest_final/ilustracoes",
+        help="Diretorio para salvar os crops",
+    )
+    stage3.add_argument(
+        "--output-metadata",
+        default="artifacts/stage3_ilustracoes.json",
+        help="JSON de metadados do stage3",
+    )
+    stage3.add_argument(
+        "--stage2",
+        default="artifacts/stage2_page_plan.json",
+        help="JSON do stage2 (opcional para hints)",
+    )
+    stage3.add_argument(
+        "--no-stage2",
+        action="store_true",
+        help="Ignora o arquivo do stage2",
+    )
+    stage3.add_argument(
+        "--all-questions",
+        action="store_true",
+        help="Processa todas as imagens de questao, mesmo com stage2 disponivel",
+    )
+    stage3.add_argument(
+        "--no-resume",
+        action="store_true",
+        help="Ignora metadados existentes do stage3 e recomeca do zero",
+    )
+    stage3.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Limita quantidade de imagens para teste",
+    )
+    stage3.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help=f"Modelo Gemini (default: {DEFAULT_MODEL})",
+    )
+
+    stage3_local_alts = subparsers.add_parser(
+        "stage3-local-alternatives",
+        help="Extracao local de alternativas visuais (A-E) sem API",
+    )
+    stage3_local_alts.add_argument(
+        "--stage1",
+        default="artifacts/stage1_basico.json",
+        help="JSON do stage1 com questoes de alternativas visuais",
+    )
+    stage3_local_alts.add_argument(
+        "--question-images-dir",
+        default="banco_imagens_fuvest_final",
+        help="Diretorio com imagens questao_XX.png",
+    )
+    stage3_local_alts.add_argument(
+        "--output-dir",
+        default="artifacts/alternativas_visuais",
+        help="Diretorio para salvar crops das alternativas",
+    )
+    stage3_local_alts.add_argument(
+        "--output-metadata",
+        default="artifacts/alternativas_visuais_local.json",
+        help="JSON de metadados de alternativas visuais",
+    )
+
+    merge = subparsers.add_parser(
+        "merge",
+        help="Junta metadados dos 3 stages em um JSON final",
+    )
+    merge.add_argument("--stage1", default="artifacts/stage1_basico.json")
+    merge.add_argument("--stage2", default="artifacts/stage2_page_plan.json")
+    merge.add_argument("--stage3", default="artifacts/stage3_ilustracoes.json")
+    merge.add_argument(
+        "--output",
+        default="artifacts/prova_estruturada.json",
+        help="JSON final consolidado",
+    )
+    merge.add_argument(
+        "--visual-alternatives",
+        default=None,
+        help=(
+            "JSON de alternativas visuais locais (opcional). "
+            "Se omitido, tenta automaticamente stage3_dir/alternativas_visuais_local.json"
+        ),
+    )
+    merge.add_argument(
+        "--questions-text",
+        default=None,
+        help=(
+            "JSON de texto local das questoes (opcional). "
+            "Se omitido, tenta output_dir/questoes_texto_local.json e stage2_dir/questoes_texto_local.json"
+        ),
+    )
+
+    run_all = subparsers.add_parser(
+        "run",
+        help="Executa o pipeline completo com defaults (stage1->stage2->stage3->alts->merge)",
+    )
+    run_all.add_argument("pdf_path", help="Caminho do PDF da prova")
+    run_all.add_argument(
+        "--artifacts-dir",
+        default="artifacts/latest",
+        help="Diretorio de saida consolidado (default: artifacts/latest)",
+    )
+    run_all.add_argument(
+        "--question-images-dir",
+        default="banco_imagens_fuvest_final",
+        help="Diretorio com imagens questao_XX.png",
+    )
+    run_all.add_argument(
+        "--max-pages",
+        type=int,
+        default=None,
+        help="Limita stage1 para as primeiras N paginas do PDF",
+    )
+    run_all.add_argument(
+        "--pages",
+        default=None,
+        help="Override manual das paginas do stage2 (ex: 1-7)",
+    )
+    run_all.add_argument(
+        "--stage3-limit",
+        type=int,
+        default=None,
+        help="Limita quantidade de questoes no stage3 (teste rapido)",
+    )
+    run_all.add_argument(
+        "--skip-stage3",
+        action="store_true",
+        help="Pula stage3 (API) e segue com merge usando apenas dados locais",
+    )
+    run_all.add_argument(
+        "--model",
+        default=DEFAULT_MODEL,
+        help=f"Modelo Gemini (default: {DEFAULT_MODEL})",
+    )
+
+    return parser
+
+
+def main() -> int:
+    load_dotenv()
+    parser = _build_parser()
+    args = parser.parse_args()
+
+    try:
+        if args.command == "stage1":
+            run_stage1(
+                pdf_path=Path(args.pdf_path).expanduser().resolve(),
+                output=Path(args.output).expanduser().resolve(),
+                model=args.model,
+                max_pages=args.max_pages,
+            )
+            return 0
+
+        if args.command == "stage2":
+            run_stage2(
+                pdf_path=Path(args.pdf_path).expanduser().resolve(),
+                stage1_path=Path(args.stage1).expanduser().resolve(),
+                output=Path(args.output).expanduser().resolve(),
+                model=args.model,
+                pages_override=args.pages,
+                dpi=args.dpi,
+            )
+            return 0
+
+        if args.command == "stage3":
+            stage2_path = None if args.no_stage2 else Path(args.stage2).expanduser().resolve()
+            run_stage3(
+                question_images_dir=Path(args.question_images_dir).expanduser().resolve(),
+                output_dir=Path(args.output_dir).expanduser().resolve(),
+                output_metadata=Path(args.output_metadata).expanduser().resolve(),
+                model=args.model,
+                stage2_path=stage2_path,
+                only_stage2_questions=not args.all_questions,
+                resume=not args.no_resume,
+                limit=args.limit,
+            )
+            return 0
+
+        if args.command == "stage3-local-alternatives":
+            run_stage3_local_alternatives(
+                stage1_path=Path(args.stage1).expanduser().resolve(),
+                question_images_dir=Path(args.question_images_dir).expanduser().resolve(),
+                output_dir=Path(args.output_dir).expanduser().resolve(),
+                output_metadata=Path(args.output_metadata).expanduser().resolve(),
+            )
+            return 0
+
+        if args.command == "merge":
+            run_merge(
+                stage1_path=Path(args.stage1).expanduser().resolve(),
+                stage2_path=Path(args.stage2).expanduser().resolve(),
+                stage3_path=Path(args.stage3).expanduser().resolve(),
+                output=Path(args.output).expanduser().resolve(),
+                visual_alternatives_path=(
+                    Path(args.visual_alternatives).expanduser().resolve()
+                    if args.visual_alternatives
+                    else None
+                ),
+                questions_text_path=(
+                    Path(args.questions_text).expanduser().resolve()
+                    if args.questions_text
+                    else None
+                ),
+            )
+            return 0
+
+        if args.command == "run":
+            run_pipeline(
+                pdf_path=Path(args.pdf_path).expanduser().resolve(),
+                artifacts_dir=Path(args.artifacts_dir).expanduser().resolve(),
+                question_images_dir=Path(args.question_images_dir).expanduser().resolve(),
+                model=args.model,
+                max_pages=args.max_pages,
+                pages_override=args.pages,
+                stage3_limit=args.stage3_limit,
+                skip_stage3=args.skip_stage3,
+            )
+            return 0
+
+        raise RuntimeError(f"Comando nao suportado: {args.command}")
+    except Exception as exc:
+        print(f"Erro: {exc}")
+        return 1
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

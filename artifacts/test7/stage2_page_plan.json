@@ -1,0 +1,204 @@
+{
+  "stage": "stage2",
+  "model": "gemini-2.5-flash",
+  "created_at": "2026-04-05T18:40:24.232449+00:00",
+  "source_pdf": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/fuvest2026-fase1-prova-V1.pdf",
+  "source_stage1": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test7/stage1_basico.json",
+  "pages": [
+    {
+      "page_number": 1,
+      "layout_mode": "full_page",
+      "reason": "Pagina de capa com instrucoes, sem questoes para extracao.",
+      "segments": [
+        {
+          "segment_id": "p001_full",
+          "bbox": [
+            0,
+            0,
+            1000,
+            1000
+          ],
+          "question_ids": [],
+          "notes": "Esta pagina contem apenas informacoes gerais e instrucoes da prova, nao questoes."
+        }
+      ]
+    },
+    {
+      "page_number": 2,
+      "layout_mode": "split_lr",
+      "reason": "duas colunas",
+      "segments": [
+        {
+          "segment_id": "p002_l",
+          "bbox": [
+            70,
+            80,
+            810,
+            480
+          ],
+          "question_ids": [
+            1,
+            2
+          ],
+          "notes": "Coluna esquerda com contexto compartilhado para Q1 e Q2, e Q1."
+        },
+        {
+          "segment_id": "p002_r",
+          "bbox": [
+            70,
+            520,
+            700,
+            920
+          ],
+          "question_ids": [
+            2,
+            3
+          ],
+          "notes": "Coluna direita com Q2 e Q3."
+        }
+      ]
+    },
+    {
+      "page_number": 3,
+      "layout_mode": "split_lr",
+      "reason": "Duas colunas de questoes sem conteudos visuais que as cruzem.",
+      "segments": [
+        {
+          "segment_id": "p003_l",
+          "bbox": [
+            50,
+            50,
+            735,
+            485
+          ],
+          "question_ids": [
+            4
+          ],
+          "notes": "Coluna esquerda com a questao 4."
+        },
+        {
+          "segment_id": "p003_r",
+          "bbox": [
+            50,
+            510,
+            835,
+            955
+          ],
+          "question_ids": [
+            5
+          ],
+          "notes": "Coluna direita com a questao 5 e suas alternativas visuais."
+        }
+      ]
+    },
+    {
+      "page_number": 4,
+      "layout_mode": "split_lr",
+      "reason": "Duas colunas de texto sem conteúdo visual que as cruze, permitindo segmentação left/right.",
+      "segments": [
+        {
+          "segment_id": "p004_l",
+          "bbox": [
+            55,
+            50,
+            790,
+            490
+          ],
+          "question_ids": [
+            6,
+            7
+          ],
+          "notes": "Questões 6 e 7 na coluna esquerda."
+        },
+        {
+          "segment_id": "p004_r",
+          "bbox": [
+            55,
+            510,
+            480,
+            950
+          ],
+          "question_ids": [
+            8
+          ],
+          "notes": "Questão 8 na coluna direita."
+        }
+      ]
+    },
+    {
+      "page_number": 5,
+      "layout_mode": "full_page",
+      "reason": "A imagem da questão 10 (Capoeira, Maria Auxiliadora da Silva) é larga e cruza as duas colunas, exigindo um recorte de página inteira para não ser cortada.",
+      "segments": [
+        {
+          "segment_id": "p005_full",
+          "bbox": [
+            80,
+            40,
+            960,
+            960
+          ],
+          "question_ids": [
+            9,
+            10
+          ],
+          "notes": "Conteúdo completo da página 5, incluindo a questão 9 na coluna esquerda e a questão 10 com sua imagem e texto de apoio que se estendem por toda a largura da página."
+        }
+      ]
+    },
+    {
+      "page_number": 6,
+      "layout_mode": "split_lr",
+      "reason": "Duas colunas de questões sem conteúdo visual cruzando-as.",
+      "segments": [
+        {
+          "segment_id": "p006_l",
+          "bbox": [
+            50,
+            70,
+            710,
+            490
+          ],
+          "question_ids": [
+            11
+          ],
+          "notes": "Coluna esquerda com questão 11."
+        },
+        {
+          "segment_id": "p006_r",
+          "bbox": [
+            50,
+            510,
+            640,
+            930
+          ],
+          "question_ids": [
+            12
+          ],
+          "notes": "Coluna direita com questão 12."
+        }
+      ]
+    },
+    {
+      "page_number": 7,
+      "layout_mode": "full_page",
+      "reason": "Conteúdo visual (gráficos e mapa) para as questões 13 e 14 se estende por múltiplas colunas, impedindo o recorte left/right.",
+      "segments": [
+        {
+          "segment_id": "p007_full",
+          "bbox": [
+            55,
+            48,
+            770,
+            950
+          ],
+          "question_ids": [
+            13,
+            14
+          ],
+          "notes": "Página inteira devido a gráficos e mapas que cruzam as colunas."
+        }
+      ]
+    }
+  ]
+}

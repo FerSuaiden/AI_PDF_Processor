@@ -1,0 +1,12 @@
+# Python caches and virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.venv312/
+
+# Local secrets
+.env
+
+# Editor/OS noise
+.DS_Store
