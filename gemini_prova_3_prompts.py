@@ -138,6 +138,8 @@ Regras do bbox:
 - Cada segmento de questao deve ter preferencialmente exatamente um question_id.
 - Nao agrupe questoes diferentes no mesmo bbox apenas porque estao na mesma coluna.
 - O bbox de uma questao comeca no numero da questao e termina antes do numero da proxima questao.
+- Quando a questao tiver alternativas A-E, o bbox termina no fim da alternativa E.
+- Nao inclua texto de apoio da questao seguinte, mesmo que sobre espaco livre no mesmo segmento/coluna.
 - Para questoes com imagens entre trechos de texto, mantenha o bbox amplo o suficiente para preservar a ordem de leitura.
 - Use segment_type="question" para questoes e segment_type="shared_context" para texto/figura de apoio compartilhado.
 - So use full_page quando uma unica questao ou contexto realmente ocupar largura grande.
@@ -149,7 +151,10 @@ Voce recebera uma imagem da questao __QUESTION_ID__.
 
 Objetivo:
 - Encontrar SOMENTE as areas de ilustracoes da questao __QUESTION_ID__ (grafico, tabela, mapa, figura, foto).
-- Incluir titulo, legenda e credito/fonte quando estiverem imediatamente associados a ilustracao.
+- Fazer um inventario visual completo, de cima para baixo: cada imagem/grafico/tabela/mapa/foto visivel deve virar exatamente um item em illustrations.
+- Cada bbox de illustration deve cobrir somente a area visual da ilustracao, do topo ao rodape e da esquerda a direita.
+- Nao inclua legenda, credito/fonte ou texto externo dentro do bbox de illustration.
+- Registre legenda e credito/fonte como content_blocks separados com text_role="legenda" ou text_role="fonte".
 - Excluir enunciado e alternativas textuais.
 - Se a imagem recebida ainda contiver pedacos de outras questoes, ignore tudo que nao pertencer a questao __QUESTION_ID__.
 - Se texto e imagem estiverem intercalados, retorne a(s) ilustracao(oes) isolada(s), mas tambem descreva os blocos em ordem de leitura em content_blocks.
@@ -181,9 +186,13 @@ Regras:
 - Coordenadas normalizadas em [0,1000], inteiros.
 - ymin < ymax e xmin < xmax.
 - Se houver mais de uma ilustracao relevante na mesma questao, retorne multiplos itens em illustrations.
+- Nao retorne duas bboxes para a mesma ilustracao. As bboxes de illustrations nao devem se sobrepor substancialmente.
 - Se nao houver ilustracao, retorne "illustrations": [].
-- Se a imagem principal tiver legenda/fonte relevante logo acima/abaixo, amplie o bbox para preservar esse contexto.
-- Evite recortes agressivos: inclua margem de seguranca para nao cortar texto ou elementos do visual nas bordas.
+- Se a imagem principal tiver legenda/fonte relevante logo acima/abaixo, nao inclua no bbox da illustration; registre como content_block separado.
+- Nao inclua paragrafo introdutorio acima da imagem. Legenda/fonte abaixo pode entrar; texto de enunciado acima nao.
+- Evite recortes agressivos: se estiver em duvida, prefira bbox um pouco maior que preserve a figura completa.
+- Nunca corte uma imagem colorida/foto/obra de arte no meio; o bbox deve conter a obra inteira.
+- O bbox da illustration deve parar antes da primeira linha de legenda ou texto abaixo da imagem.
 - content_blocks ajuda a preservar questoes com texto/imagem/texto; se nao tiver certeza, retorne lista vazia.
 """.strip()
 
@@ -981,6 +990,54 @@ def _extract_stage3_content_blocks(payload: dict[str, Any]) -> list[dict[str, An
 
     blocks.sort(key=lambda item: item["reading_order"])
     return blocks
+
+
+def _stage3_regions_from_content_blocks(
+    content_blocks: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    regions: list[dict[str, Any]] = []
+    for block in content_blocks:
+        kind = str(block.get("kind") or "").strip().lower()
+        if kind != "illustration":
+            continue
+
+        bbox = block.get("bbox_norm_0_1000")
+        if not isinstance(bbox, list):
+            continue
+
+        try:
+            bbox_tuple = _validate_bbox({"bbox": bbox})
+        except ValueError:
+            continue
+
+        regions.append(
+            {
+                "bbox_norm_0_1000": list(bbox_tuple),
+                "visual_type": "illustration",
+                "confidence": None,
+                "reading_order": block.get("reading_order"),
+                "source": "content_blocks",
+            }
+        )
+
+    deduped: list[dict[str, Any]] = []
+    for region in regions:
+        bbox_tuple = tuple(region["bbox_norm_0_1000"])
+        if any(
+            _bbox_iou_norm(bbox_tuple, tuple(saved["bbox_norm_0_1000"])) >= 0.8
+            for saved in deduped
+        ):
+            continue
+        deduped.append(region)
+
+    deduped.sort(
+        key=lambda item: (
+            item.get("reading_order")
+            if isinstance(item.get("reading_order"), int)
+            else 10_000
+        )
+    )
+    return deduped
 
 
 def _extract_stage3_alternatives(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -2012,16 +2069,19 @@ def run_stage3(
                 contents=[prompt, image],
             )
 
-            regions = _extract_stage3_regions(payload)
             content_blocks = _extract_stage3_content_blocks(payload)
+            regions = _stage3_regions_from_content_blocks(content_blocks)
+            if not regions:
+                regions = _extract_stage3_regions(payload)
             region_items: list[dict[str, Any]] = []
 
             for index, region in enumerate(regions, start=1):
+                from_content_blocks = region.get("source") == "content_blocks"
                 bbox_norm = _expand_bbox_norm(
                     tuple(region["bbox_norm_0_1000"]),
-                    pad_top=20,
-                    pad_left=60,
-                    pad_bottom=40,
+                    pad_top=8 if from_content_blocks else 20,
+                    pad_left=18 if from_content_blocks else 60,
+                    pad_bottom=0 if from_content_blocks else 40,
                     pad_right=18,
                 )
                 bbox_px = _bbox_to_pixels(bbox_norm, image.width, image.height)
