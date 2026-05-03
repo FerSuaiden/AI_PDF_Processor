@@ -104,9 +104,12 @@ PROMPT_STAGE2_TEMPLATE = """
 Voce recebera UMA imagem de pagina de prova e um bloco de hints da etapa 1.
 
 Objetivo desta etapa:
-- Definir como segmentar a pagina para extracao de questoes.
-- Preferir 2 recortes em left/right quando houver duas colunas de questoes.
-- Se houver conteudo visual que cruza as colunas, marcar pagina inteira.
+- Definir recortes atomicos por questao para extracao posterior.
+- Em paginas com duas colunas, use a coluna apenas como referencia visual; os segmentos devem ser por questao, nao por coluna inteira.
+- Se uma questao tiver texto e imagem intercalados, o bbox deve conter a questao completa, incluindo todos os blocos de texto, figuras, tabelas, legendas e alternativas dessa questao.
+- Se uma questao continuar em outro trecho da pagina, retorne mais de um segmento para a mesma questao com segment_id distinto.
+- Se houver texto de apoio compartilhado, inclua esse texto nos segmentos das questoes relacionadas ou retorne um segmento de contexto com question_ids contendo todas elas.
+- Se houver conteudo visual que cruza as colunas, use bbox de pagina larga somente para a questao afetada, nao para todas as questoes da pagina.
 
 Hints da etapa 1 (JSON):
 __HINTS_JSON__
@@ -120,7 +123,9 @@ Retorne SOMENTE JSON valido neste formato:
     {
             "segment_id": "p__PAGE_NUMBER_PADDED___l",
       "bbox": [ymin, xmin, ymax, xmax],
-      "question_ids": [13, 14],
+      "question_id": 13,
+      "question_ids": [13],
+      "segment_type": "question",
       "notes": "texto curto"
     }
   ]
@@ -130,19 +135,24 @@ Regras do bbox:
 - Coordenadas normalizadas no intervalo [0,1000].
 - Inteiros.
 - ymin < ymax e xmin < xmax.
-- Em split_lr, normalmente use dois segmentos cobrindo coluna esquerda e coluna direita.
-- Em full_page, use um unico segmento cobrindo a pagina relevante.
-- So use full_page se separar left/right puder cortar uma imagem/tabela que ocupa as duas colunas.
+- Cada segmento de questao deve ter preferencialmente exatamente um question_id.
+- Nao agrupe questoes diferentes no mesmo bbox apenas porque estao na mesma coluna.
+- O bbox de uma questao comeca no numero da questao e termina antes do numero da proxima questao.
+- Para questoes com imagens entre trechos de texto, mantenha o bbox amplo o suficiente para preservar a ordem de leitura.
+- Use segment_type="question" para questoes e segment_type="shared_context" para texto/figura de apoio compartilhado.
+- So use full_page quando uma unica questao ou contexto realmente ocupar largura grande.
 """.strip()
 
 
 PROMPT_STAGE3_TEMPLATE = """
-Voce recebera uma imagem de questao.
+Voce recebera uma imagem da questao __QUESTION_ID__.
 
 Objetivo:
-- Encontrar SOMENTE as areas de ilustracoes da questao (grafico, tabela, mapa, figura, foto).
+- Encontrar SOMENTE as areas de ilustracoes da questao __QUESTION_ID__ (grafico, tabela, mapa, figura, foto).
 - Incluir titulo, legenda e credito/fonte quando estiverem imediatamente associados a ilustracao.
 - Excluir enunciado e alternativas textuais.
+- Se a imagem recebida ainda contiver pedacos de outras questoes, ignore tudo que nao pertencer a questao __QUESTION_ID__.
+- Se texto e imagem estiverem intercalados, retorne a(s) ilustracao(oes) isolada(s), mas tambem descreva os blocos em ordem de leitura em content_blocks.
 
 Contexto opcional da etapa 2:
 __STAGE2_HINT__
@@ -155,6 +165,15 @@ Retorne SOMENTE JSON valido neste formato:
             "visual_type": "mapa|grafico|tabela|figura|foto|outro",
             "confidence": 0.0
         }
+    ],
+    "content_blocks": [
+        {
+            "kind": "text|illustration|alternative|shared_context",
+            "bbox": [ymin, xmin, ymax, xmax],
+            "text_role": "enunciado|legenda|fonte|alternativa|outro",
+            "label": "A|B|C|D|E|null",
+            "reading_order": 1
+        }
     ]
 }
 
@@ -165,16 +184,18 @@ Regras:
 - Se nao houver ilustracao, retorne "illustrations": [].
 - Se a imagem principal tiver legenda/fonte relevante logo acima/abaixo, amplie o bbox para preservar esse contexto.
 - Evite recortes agressivos: inclua margem de seguranca para nao cortar texto ou elementos do visual nas bordas.
+- content_blocks ajuda a preservar questoes com texto/imagem/texto; se nao tiver certeza, retorne lista vazia.
 """.strip()
 
 
 PROMPT_STAGE3_ALTERNATIVES_TEMPLATE = """
-Voce recebera uma imagem de questao.
+Voce recebera uma imagem da questao __QUESTION_ID__.
 
 Objetivo:
 - Detectar SOMENTE alternativas visuais (A, B, C, D, E) que contenham imagem, grafico, tabela, mapa, diagrama ou figura.
 - Excluir alternativas puramente textuais.
 - Excluir enunciado, texto de apoio e ilustracoes do corpo da questao que nao pertencam as alternativas.
+- Se a imagem recebida ainda contiver pedacos de outras questoes, ignore tudo que nao pertencer a questao __QUESTION_ID__.
 
 Contexto opcional da etapa 2:
 __STAGE2_HINT__
@@ -368,6 +389,24 @@ def _extract_int_list(values: Any) -> list[int]:
     return parsed
 
 
+def _extract_segment_question_ids(segment: dict[str, Any]) -> list[int]:
+    question_ids = _extract_int_list(segment.get("question_ids", []))
+    question_id = segment.get("question_id")
+    if isinstance(question_id, int):
+        question_ids.append(question_id)
+    elif isinstance(question_id, str) and question_id.strip().isdigit():
+        question_ids.append(int(question_id.strip()))
+
+    deduped: list[int] = []
+    seen: set[int] = set()
+    for qid in question_ids:
+        if qid in seen:
+            continue
+        seen.add(qid)
+        deduped.append(qid)
+    return deduped
+
+
 def _clean_extracted_text(text: str) -> str:
     text = text.replace("\u00ac", " ")
     text = text.replace("\r\n", "\n").replace("\r", "\n")
@@ -400,7 +439,7 @@ def _question_pages_from_stage2(stage2_payload: dict[str, Any]) -> dict[int, lis
         for segment in page.get("segments", []):
             if not isinstance(segment, dict):
                 continue
-            for qid in _extract_int_list(segment.get("question_ids", [])):
+            for qid in _extract_segment_question_ids(segment):
                 mapping.setdefault(qid, set()).add(page_number)
 
     return {qid: sorted(list(page_set)) for qid, page_set in mapping.items()}
@@ -647,7 +686,10 @@ def _normalize_stage2_page_payload(
             {
                 "segment_id": segment_id,
                 "bbox": list(bbox),
-                "question_ids": _extract_int_list(segment.get("question_ids", [])),
+                "question_ids": _extract_segment_question_ids(segment),
+                "segment_type": str(
+                    segment.get("segment_type", "question")
+                ).strip() or "question",
                 "notes": str(segment.get("notes", "")).strip(),
             }
         )
@@ -898,6 +940,47 @@ def _extract_stage3_regions(payload: dict[str, Any]) -> list[dict[str, Any]]:
             "confidence": _coerce_confidence(payload.get("confidence")),
         }
     ]
+
+
+def _extract_stage3_content_blocks(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    raw_blocks = payload.get("content_blocks")
+    if not isinstance(raw_blocks, list):
+        return []
+
+    blocks: list[dict[str, Any]] = []
+    for raw_block in raw_blocks:
+        if not isinstance(raw_block, dict):
+            continue
+
+        try:
+            bbox = _validate_bbox({"bbox": raw_block.get("bbox")})
+        except ValueError:
+            continue
+
+        reading_order = raw_block.get("reading_order")
+        try:
+            reading_order_int = int(reading_order)
+        except (TypeError, ValueError):
+            reading_order_int = len(blocks) + 1
+
+        label = raw_block.get("label")
+        if label is not None:
+            label = str(label).strip().upper() or None
+            if label == "NULL":
+                label = None
+
+        blocks.append(
+            {
+                "kind": str(raw_block.get("kind", "")).strip() or None,
+                "bbox_norm_0_1000": list(bbox),
+                "text_role": str(raw_block.get("text_role", "")).strip() or None,
+                "label": label,
+                "reading_order": reading_order_int,
+            }
+        )
+
+    blocks.sort(key=lambda item: item["reading_order"])
+    return blocks
 
 
 def _extract_stage3_alternatives(payload: dict[str, Any]) -> dict[str, dict[str, Any]]:
@@ -1619,8 +1702,7 @@ def _stage2_hint_for_question(stage2_payload: dict[str, Any], question_number: i
         for segment in page_item.get("segments", []):
             if not isinstance(segment, dict):
                 continue
-            qids = segment.get("question_ids", [])
-            if isinstance(qids, list) and question_number in qids:
+            if question_number in _extract_segment_question_ids(segment):
                 return json.dumps(segment, ensure_ascii=False)
 
     return "Sem hint da etapa 2"
@@ -1639,10 +1721,28 @@ def _question_ids_from_stage2(stage2_payload: dict[str, Any]) -> list[int]:
         for segment in page_item.get("segments", []):
             if not isinstance(segment, dict):
                 continue
-            for question_id in _extract_int_list(segment.get("question_ids", [])):
+            for question_id in _extract_segment_question_ids(segment):
                 question_ids.add(question_id)
 
     return sorted(question_ids)
+
+
+def _compose_question_segments(crops: list[Image.Image]) -> Image.Image:
+    if len(crops) == 1:
+        return crops[0]
+
+    normalized = [crop.convert("RGB") for crop in crops]
+    gap = max(10, int(max(crop.height for crop in normalized) * 0.015))
+    width = max(crop.width for crop in normalized)
+    height = sum(crop.height for crop in normalized) + gap * (len(normalized) - 1)
+    composed = Image.new("RGB", (width, height), "white")
+
+    cursor_y = 0
+    for crop in normalized:
+        composed.paste(crop, (0, cursor_y))
+        cursor_y += crop.height + gap
+
+    return composed
 
 
 def _build_question_images_from_stage2_segments(
@@ -1665,7 +1765,7 @@ def _build_question_images_from_stage2_segments(
     for existing in output_dir.glob("questao_*.png"):
         existing.unlink(missing_ok=True)
 
-    generated = 0
+    crops_by_question: dict[int, list[tuple[int, int, int, Image.Image]]] = {}
 
     for page_item in pages:
         if not isinstance(page_item, dict):
@@ -1700,7 +1800,7 @@ def _build_question_images_from_stage2_segments(
             except ValueError:
                 continue
 
-            qids = _extract_int_list(segment.get("question_ids", []))
+            qids = _extract_segment_question_ids(segment)
             if not qids:
                 continue
 
@@ -1710,11 +1810,17 @@ def _build_question_images_from_stage2_segments(
 
             segment_crop = page_image.crop((left, top, right, bottom))
             for qid in qids:
-                output_image = output_dir / f"questao_{qid:02d}.png"
-                if output_image.exists():
-                    continue
-                segment_crop.save(output_image)
-                generated += 1
+                crops_by_question.setdefault(qid, []).append(
+                    (page_number, top, left, segment_crop.copy())
+                )
+
+    generated = 0
+    for qid, entries in sorted(crops_by_question.items()):
+        entries.sort(key=lambda item: (item[0], item[1], item[2]))
+        output_image = output_dir / f"questao_{qid:02d}.png"
+        composed = _compose_question_segments([entry[3] for entry in entries])
+        composed.save(output_image)
+        generated += 1
 
     return generated
 
@@ -1897,6 +2003,7 @@ def run_stage3(
             else "Sem hint da etapa 2"
         )
         prompt = PROMPT_STAGE3_TEMPLATE.replace("__STAGE2_HINT__", hint)
+        prompt = prompt.replace("__QUESTION_ID__", str(question_number))
 
         with Image.open(image_path) as image:
             payload = _request_json(
@@ -1906,6 +2013,7 @@ def run_stage3(
             )
 
             regions = _extract_stage3_regions(payload)
+            content_blocks = _extract_stage3_content_blocks(payload)
             region_items: list[dict[str, Any]] = []
 
             for index, region in enumerate(regions, start=1):
@@ -1954,6 +2062,7 @@ def run_stage3(
             "question_id": question_number,
             "input_image": str(image_path),
             "regions": region_items,
+            "content_blocks": content_blocks,
         }
         if region_items:
             item.update(
@@ -2076,6 +2185,7 @@ def run_stage3_alternatives(
             else "Sem hint da etapa 2"
         )
         prompt = PROMPT_STAGE3_ALTERNATIVES_TEMPLATE.replace("__STAGE2_HINT__", hint)
+        prompt = prompt.replace("__QUESTION_ID__", str(question_id))
 
         with Image.open(input_image) as image:
             grid_boxes = _grid_bboxes_for_visual_alternatives(image.width, image.height)
@@ -2162,20 +2272,6 @@ def run_stage3_alternatives(
                     and _is_alternative_bbox_suspect(image, bbox_px, grid_bbox)
                 ):
                     bbox_px = _grid_fallback_bbox_for_alternative(image, grid_bbox)
-
-                if isinstance(grid_bbox, tuple):
-                    grid_w = max(1, grid_bbox[2] - grid_bbox[0])
-                    grid_h = max(1, grid_bbox[3] - grid_bbox[1])
-                    min_left = max(0, grid_bbox[0] - int(grid_w * 0.09))
-                    min_top = max(0, grid_bbox[1] - int(grid_h * 0.11))
-                    max_right = min(image.width, grid_bbox[2] + int(grid_w * 0.05))
-                    max_bottom = min(image.height, grid_bbox[3] + int(grid_h * 0.07))
-                    bbox_px = (
-                        min(bbox_px[0], min_left),
-                        min(bbox_px[1], min_top),
-                        max(bbox_px[2], max_right),
-                        max(bbox_px[3], max_bottom),
-                    )
 
                 bbox_norm = _bbox_pixels_to_norm(bbox_px, image.width, image.height)
                 output_image = output_dir / f"questao_{question_id:02d}_alt_{letter}.png"
@@ -3464,7 +3560,13 @@ def _build_parser() -> argparse.ArgumentParser:
     run_all.add_argument(
         "--gemini-visual-alts",
         action="store_true",
-        help="Usa Gemini somente para alternativas visuais (com fallback local)",
+        default=True,
+        help="Usa Gemini para alternativas visuais (default; mantido por compatibilidade)",
+    )
+    run_all.add_argument(
+        "--local-visual-alts",
+        action="store_true",
+        help="Usa detector local para alternativas visuais em vez do Gemini",
     )
     run_all.add_argument(
         "--model",
@@ -3586,7 +3688,9 @@ def main() -> int:
                 stage3_limit=args.stage3_limit,
                 skip_stage3=args.skip_stage3,
                 local_stage3=args.local_stage3,
-                gemini_visual_alts=args.gemini_visual_alts,
+                gemini_visual_alts=(
+                    args.gemini_visual_alts and not args.local_visual_alts
+                ),
             )
             return 0
 

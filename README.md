@@ -87,8 +87,17 @@ Para evitar rodar varios subcomandos com muitos parametros, use:
 python gemini_prova_3_prompts.py run fuvest2026-fase1-prova-V1.pdf
 ```
 
-Esse comando executa stage1, stage2, stage3, alternativas visuais locais e merge com defaults,
+Esse comando executa stage1, stage2, stage3, alternativas visuais via Gemini com fallback local e merge com defaults,
 salvando em `artifacts/latest/`.
+
+O Stage2 agora pede recortes atomicos por questao, em vez de recortes amplos por coluna.
+Quando uma questao aparece em mais de um trecho, os segmentos sao compostos em uma unica
+imagem `questao_XX.png` antes do Stage3. Isso reduz o caso em que a mesma coluna era
+duplicada para varias questoes e o crop de ilustracoes acabava pegando imagens erradas.
+
+O Stage3 via Gemini tambem recebe o numero da questao alvo e pode devolver `content_blocks`
+em ordem de leitura, alem dos bboxes de ilustracoes. Esse metadado foi pensado para questoes
+com texto/imagem/texto intercalados.
 
 Arquivos finais importantes em `artifacts/latest/`:
 
@@ -109,6 +118,9 @@ python gemini_prova_3_prompts.py run fuvest2026-fase1-prova-V1.pdf --skip-stage3
 
 # Usar detector local de ilustracoes (sem gastar creditos Gemini)
 python gemini_prova_3_prompts.py run fuvest2026-fase1-prova-V1.pdf --local-stage3
+
+# Usar detector local para alternativas visuais (por padrao, elas usam Gemini com fallback local)
+python gemini_prova_3_prompts.py run fuvest2026-fase1-prova-V1.pdf --local-visual-alts
 ```
 
 ## Stage3 local (sem API)
