@@ -1,0 +1,8 @@
+{
+  "stage": "stage3_local_alternatives",
+  "created_at": "2026-04-11T22:30:09.453973+00:00",
+  "source_stage1": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/stage1_basico.json",
+  "source_question_images_dir": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/input_questoes_stage2",
+  "output_dir": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/alternativas_visuais",
+  "items": []
+}

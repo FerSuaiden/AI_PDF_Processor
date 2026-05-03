@@ -1,0 +1,359 @@
+{
+  "stage": "stage3_local_illustrations",
+  "created_at": "2026-04-11T22:30:09.444722+00:00",
+  "question_images_dir": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/input_questoes_stage2",
+  "output_dir": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes",
+  "max_regions": 3,
+  "source_stage2": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/stage2_page_plan.json",
+  "source_stage1": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/stage1_basico.json",
+  "filtered_question_ids": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "question_ids_with_visual_alternatives": [],
+  "items": [
+    {
+      "question_id": 1,
+      "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/input_questoes_stage2/questao_01.png",
+      "regions": [],
+      "detection_mode": "local_connected_components"
+    },
+    {
+      "question_id": 2,
+      "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/input_questoes_stage2/questao_02.png",
+      "regions": [],
+      "detection_mode": "local_connected_components"
+    },
+    {
+      "question_id": 3,
+      "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/input_questoes_stage2/questao_03.png",
+      "regions": [
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_03_ilustracao_01.png",
+          "bbox_pixels": [
+            0,
+            215,
+            728,
+            907
+          ],
+          "bbox_norm_0_1000": [
+            97,
+            0,
+            412,
+            1000
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 1
+        },
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_03_ilustracao_02.png",
+          "bbox_pixels": [
+            0,
+            829,
+            728,
+            1497
+          ],
+          "bbox_norm_0_1000": [
+            376,
+            0,
+            680,
+            1000
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 2
+        }
+      ],
+      "detection_mode": "local_connected_components",
+      "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_03_ilustracao_01.png",
+      "bbox_norm_0_1000": [
+        97,
+        0,
+        412,
+        1000
+      ],
+      "bbox_pixels": [
+        0,
+        215,
+        728,
+        907
+      ],
+      "visual_type": "local_detected",
+      "confidence": null
+    },
+    {
+      "question_id": 4,
+      "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/input_questoes_stage2/questao_04.png",
+      "regions": [
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_04_ilustracao_01.png",
+          "bbox_pixels": [
+            2,
+            84,
+            782,
+            369
+          ],
+          "bbox_norm_0_1000": [
+            37,
+            2,
+            162,
+            976
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 1
+        },
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_04_ilustracao_02.png",
+          "bbox_pixels": [
+            9,
+            391,
+            469,
+            719
+          ],
+          "bbox_norm_0_1000": [
+            172,
+            11,
+            317,
+            585
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 2
+        },
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_04_ilustracao_03.png",
+          "bbox_pixels": [
+            366,
+            391,
+            778,
+            717
+          ],
+          "bbox_norm_0_1000": [
+            172,
+            456,
+            316,
+            971
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 3
+        }
+      ],
+      "detection_mode": "local_connected_components",
+      "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_04_ilustracao_01.png",
+      "bbox_norm_0_1000": [
+        37,
+        2,
+        162,
+        976
+      ],
+      "bbox_pixels": [
+        2,
+        84,
+        782,
+        369
+      ],
+      "visual_type": "local_detected",
+      "confidence": null
+    },
+    {
+      "question_id": 5,
+      "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/input_questoes_stage2/questao_05.png",
+      "regions": [
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_05_ilustracao_01.png",
+          "bbox_pixels": [
+            2,
+            84,
+            782,
+            369
+          ],
+          "bbox_norm_0_1000": [
+            37,
+            2,
+            162,
+            976
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 1
+        },
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_05_ilustracao_02.png",
+          "bbox_pixels": [
+            9,
+            391,
+            469,
+            719
+          ],
+          "bbox_norm_0_1000": [
+            172,
+            11,
+            317,
+            585
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 2
+        },
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_05_ilustracao_03.png",
+          "bbox_pixels": [
+            366,
+            391,
+            778,
+            717
+          ],
+          "bbox_norm_0_1000": [
+            172,
+            456,
+            316,
+            971
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 3
+        }
+      ],
+      "detection_mode": "local_connected_components",
+      "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_05_ilustracao_01.png",
+      "bbox_norm_0_1000": [
+        37,
+        2,
+        162,
+        976
+      ],
+      "bbox_pixels": [
+        2,
+        84,
+        782,
+        369
+      ],
+      "visual_type": "local_detected",
+      "confidence": null
+    },
+    {
+      "question_id": 6,
+      "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/input_questoes_stage2/questao_06.png",
+      "regions": [
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_06_ilustracao_01.png",
+          "bbox_pixels": [
+            2,
+            84,
+            782,
+            369
+          ],
+          "bbox_norm_0_1000": [
+            37,
+            2,
+            162,
+            976
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 1
+        },
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_06_ilustracao_02.png",
+          "bbox_pixels": [
+            9,
+            391,
+            469,
+            719
+          ],
+          "bbox_norm_0_1000": [
+            172,
+            11,
+            317,
+            585
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 2
+        },
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_06_ilustracao_03.png",
+          "bbox_pixels": [
+            366,
+            391,
+            778,
+            717
+          ],
+          "bbox_norm_0_1000": [
+            172,
+            456,
+            316,
+            971
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 3
+        }
+      ],
+      "detection_mode": "local_connected_components",
+      "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_06_ilustracao_01.png",
+      "bbox_norm_0_1000": [
+        37,
+        2,
+        162,
+        976
+      ],
+      "bbox_pixels": [
+        2,
+        84,
+        782,
+        369
+      ],
+      "visual_type": "local_detected",
+      "confidence": null
+    },
+    {
+      "question_id": 7,
+      "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/input_questoes_stage2/questao_07.png",
+      "regions": [
+        {
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_07_ilustracao.png",
+          "bbox_pixels": [
+            3,
+            834,
+            801,
+            1682
+          ],
+          "bbox_norm_0_1000": [
+            368,
+            3,
+            742,
+            1000
+          ],
+          "visual_type": "local_detected",
+          "confidence": null,
+          "rank": 1
+        }
+      ],
+      "detection_mode": "local_connected_components",
+      "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/ilustracoes/questao_07_ilustracao.png",
+      "bbox_norm_0_1000": [
+        368,
+        3,
+        742,
+        1000
+      ],
+      "bbox_pixels": [
+        3,
+        834,
+        801,
+        1682
+      ],
+      "visual_type": "local_detected",
+      "confidence": null
+    }
+  ]
+}

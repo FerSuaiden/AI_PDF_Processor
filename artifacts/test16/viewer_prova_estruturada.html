@@ -1,0 +1,1727 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Viewer Prova Estruturada</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/katex.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.10/dist/contrib/auto-render.min.js"></script>
+  <script src="./viewer_data.js"></script>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #64748b;
+      --border: #dbe5ef;
+      --accent: #0a7b83;
+      --accent-soft: #e8f7f8;
+      --alt-soft: #f8fafc;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+      background: radial-gradient(circle at 10% 0%, #f9fcff 0%, #eef4f9 100%);
+    }
+
+    .wrap {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 1.8rem;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    h3 {
+      margin: 0;
+      font-size: 1rem;
+    }
+
+    .sub {
+      margin-top: 8px;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    .toolbar {
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    button {
+      border: 1px solid var(--accent);
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      padding: 8px 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    button:hover { filter: brightness(0.96); }
+
+    .status {
+      color: var(--muted);
+      font-size: 0.92rem;
+      min-height: 18px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+
+    .section {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: var(--card);
+      padding: 14px;
+    }
+
+    .kvs {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: 180px 1fr;
+      gap: 6px 12px;
+    }
+
+    .k { color: var(--muted); }
+
+    .badge {
+      display: inline-block;
+      margin-right: 6px;
+      margin-bottom: 6px;
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 0.8rem;
+      background: var(--accent-soft);
+      color: #0e5b61;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    .empty {
+      color: var(--muted);
+      margin-top: 8px;
+    }
+
+    .question-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .context-card {
+      border: 1px dashed #bcd5e5;
+      background: #f5fbff;
+      border-radius: 10px;
+      padding: 10px;
+      line-height: 1.45;
+    }
+
+    .context-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .shared-note {
+      margin-top: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border-left: 4px solid #0a7b83;
+      background: #ecf7f8;
+      color: #35525b;
+      font-size: 0.9rem;
+    }
+
+    .question-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .question-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .question-body {
+      line-height: 1.46;
+      margin-top: 8px;
+    }
+
+    .question-body br + br { display: none; }
+
+    .ref-box {
+      margin-top: 12px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      background: #f2f4f7;
+      border: 1px solid #dde3ea;
+      color: #5f6b7a;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      font-style: italic;
+    }
+
+    .ref-title {
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      font-weight: 700;
+      font-size: 0.72rem;
+      color: #7a8793;
+      margin-bottom: 4px;
+    }
+
+    .alt-title {
+      margin-top: 12px;
+      margin-bottom: 6px;
+      color: #516170;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .alt-grid {
+      margin-top: 10px;
+      display: grid;
+      gap: 8px;
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+    }
+
+    .alt-item {
+      background: var(--alt-soft);
+      border: 1px solid #e3ebf2;
+      border-radius: 8px;
+      padding: 8px;
+      line-height: 1.42;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      column-gap: 10px;
+      align-items: start;
+    }
+
+    .alt-label {
+      font-weight: 700;
+      color: #172033;
+      min-width: 30px;
+    }
+
+    .alt-content {
+      white-space: normal;
+    }
+
+    .alt-math {
+      font-size: 1rem;
+      color: #1d2a3a;
+    }
+
+    .alt-visual-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      margin-top: 10px;
+      border-top: 1px dashed var(--border);
+      padding-top: 10px;
+    }
+
+    .alt-visual-card {
+      border: 1px solid #e2eaf1;
+      background: #f9fbfd;
+      border-radius: 8px;
+      padding: 8px;
+    }
+
+    .preview {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      margin-top: 6px;
+      background: #fff;
+    }
+
+    .cards {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      margin-top: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    details {
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    summary {
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    @media (max-width: 760px) {
+      .kvs { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Viewer da Prova Estruturada</h1>
+    <div class="sub">Visualizacao organizada das questoes, com contexto compartilhado, latex e alternativas visuais.</div>
+
+    <div class="toolbar">
+      <div class="status" id="status">Carregando automaticamente...</div>
+    </div>
+
+    <div id="app" class="grid"></div>
+  </div>
+
+  <script>
+    const app = document.getElementById("app");
+    const statusEl = document.getElementById("status");
+
+    const state = {
+      structured: null,
+      questionsText: null,
+      visualAlternatives: null
+    };
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+    }
+
+    function clearApp() {
+      app.innerHTML = "";
+    }
+
+    function section(title, html) {
+      const el = document.createElement("section");
+      el.className = "section";
+      el.innerHTML = `<h2>${escapeHtml(title)}</h2>${html || ""}`;
+      return el;
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function safeArray(value) {
+      return Array.isArray(value) ? value : [];
+    }
+
+    function multilineToHtml(value) {
+      return escapeHtml(value || "").replace(/\n/g, "<br>");
+    }
+
+    function normalizeOcrText(value) {
+      let text = String(value || "");
+      text = text.normalize("NFKC");
+      const substitutions = {
+        "�": "",
+        "ଠ": "0",
+        "୦": "0",
+        "೦": "0",
+        "۰": "0",
+        "૦": "0",
+        "௦": "0",
+        "ଵ": "1",
+        "୧": "1",
+        "೧": "1",
+        "۱": "1",
+        "૧": "1",
+        "௧": "1",
+        "ଶ": "2",
+        "୨": "2",
+        "೨": "2",
+        "۲": "2",
+        "૨": "2",
+        "௨": "2",
+        "ଷ": "3",
+        "୩": "3",
+        "೩": "3",
+        "۳": "3",
+        "૩": "3",
+        "௩": "3",
+        "ସ": "4",
+        "୪": "4",
+        "೪": "4",
+        "۴": "4",
+        "૪": "4",
+        "௪": "4",
+        "ହ": "5",
+        "୫": "5",
+        "೫": "5",
+        "۵": "5",
+        "૫": "5",
+        "௫": "5",
+        "଺": "6",
+        "୬": "6",
+        "೬": "6",
+        "۶": "6",
+        "૬": "6",
+        "௬": "6",
+        "଻": "7",
+        "୭": "7",
+        "೭": "7",
+        "۷": "7",
+        "૭": "7",
+        "௭": "7",
+        "଼": "8",
+        "୮": "8",
+        "೮": "8",
+        "۸": "8",
+        "૮": "8",
+        "௮": "8",
+        "ଽ": "9",
+        "୯": "9",
+        "೯": "9",
+        "۹": "9",
+        "૯": "9",
+        "௯": "9",
+        "௜": "i",
+        "గ": "π",
+        "൬": "(",
+        "൰": ")",
+        "": "■",
+        "": "●",
+        "෍": "∑",
+        "�": "",
+      };
+
+      Object.entries(substitutions).forEach(([from, to]) => {
+        text = text.split(from).join(to);
+      });
+
+      text = text.replace(/[−–—]/g, "-");
+      text = text.replace(/([A-Za-zÀ-ÿ])-\n([a-zà-ÿ])/g, "$1-$2");
+      text = text.replace(/log\s*([0-9])/g, "log_$1");
+      text = text.replace(/,\s*,/g, ",");
+      text = text.replace(/[ \t]+\n/g, "\n");
+      text = text.replace(/\n{3,}/g, "\n\n");
+      return text.trim();
+    }
+
+    function isReferenceLine(line) {
+      const trimmed = String(line || "").trim();
+      if (!trimmed) return false;
+
+      const lower = trimmed.toLowerCase();
+      if (lower.includes("disponível em") || lower.includes("disponivel em")) return true;
+      if (lower.startsWith("fonte:")) return true;
+      if (/adaptad[oa]/i.test(trimmed)) return true;
+      if (/https?:\/\//i.test(trimmed)) return true;
+      if (/\bcompanhia das letras\b/i.test(trimmed)) return true;
+      if (/\beditora\b/i.test(trimmed)) return true;
+      if (/\b\d{4}\b/.test(trimmed) && /[.:;]/.test(trimmed) && trimmed.split(/\s+/).length >= 5) {
+        return true;
+      }
+      return false;
+    }
+
+    function splitReferences(text) {
+      const normalized = normalizeOcrText(text);
+      const lines = normalized.split("\n");
+      const bodyLines = [];
+      const references = [];
+
+      lines.forEach((rawLine) => {
+        const line = String(rawLine || "").trim();
+        if (!line) {
+          if (bodyLines.length && bodyLines[bodyLines.length - 1] !== "") {
+            bodyLines.push("");
+          }
+          return;
+        }
+
+        if (isReferenceLine(line)) {
+          references.push(line);
+        } else {
+          bodyLines.push(line);
+        }
+      });
+
+      while (bodyLines.length && bodyLines[0] === "") {
+        bodyLines.shift();
+      }
+      while (bodyLines.length && bodyLines[bodyLines.length - 1] === "") {
+        bodyLines.pop();
+      }
+
+      return {
+        body: bodyLines.join("\n").replace(/\n{3,}/g, "\n\n").trim(),
+        references,
+      };
+    }
+
+    function renderReferenceBox(references) {
+      const items = safeArray(references).filter((line) => typeof line === "string" && line.trim());
+      if (!items.length) return null;
+
+      const box = document.createElement("div");
+      box.className = "ref-box";
+      box.innerHTML = `
+        <div class="ref-title">Fonte / Referencia</div>
+        ${items.map((line) => `<div>${escapeHtml(line)}</div>`).join("")}
+      `;
+      return box;
+    }
+
+    function mapByQuestionId(items, keyName = "question_id") {
+      const map = new Map();
+      safeArray(items).forEach((item) => {
+        const id = item && item[keyName];
+        if (Number.isInteger(id)) {
+          map.set(id, item);
+        }
+      });
+      return map;
+    }
+
+    function relativePathFromCurrentDocument(absPath) {
+      if (typeof absPath !== "string" || !absPath.startsWith("/")) {
+        return null;
+      }
+
+      const currentPath = decodeURI(window.location.pathname || "").replace(/\\/g, "/");
+      const currentDir = currentPath.slice(0, currentPath.lastIndexOf("/") + 1);
+      if (!currentDir.startsWith("/")) {
+        return null;
+      }
+
+      const fromParts = currentDir.split("/").filter(Boolean);
+      const toParts = absPath.split("/").filter(Boolean);
+
+      while (fromParts.length && toParts.length && fromParts[0] === toParts[0]) {
+        fromParts.shift();
+        toParts.shift();
+      }
+
+      return `${"../".repeat(fromParts.length)}${toParts.join("/")}`;
+    }
+
+    function pathCandidates(rawPath) {
+      if (!rawPath) return [];
+      const full = String(rawPath).replace(/\\/g, "/");
+      const out = [full];
+
+      if (full.startsWith("/")) {
+        const relToCurrent = relativePathFromCurrentDocument(full);
+        if (relToCurrent) {
+          out.push(relToCurrent);
+        }
+      }
+
+      if (full.startsWith("/")) {
+        out.push(`file://${full}`);
+      }
+
+      const markerArtifacts = "/artifacts/";
+      const iArtifacts = full.lastIndexOf(markerArtifacts);
+      if (iArtifacts !== -1) {
+        const relFromArtifacts = full.slice(iArtifacts + markerArtifacts.length);
+        out.push(relFromArtifacts);
+
+        const firstSlash = relFromArtifacts.indexOf("/");
+        if (firstSlash !== -1) {
+          out.push(relFromArtifacts.slice(firstSlash + 1));
+        }
+      }
+
+      const markerRoot = "/multi_agent_PDF_Processor/";
+      const iRoot = full.lastIndexOf(markerRoot);
+      if (iRoot !== -1) out.push(full.slice(iRoot + markerRoot.length));
+
+      return [...new Set(out)];
+    }
+
+    function normalizeImageSrc(value) {
+      if (typeof value !== "string") return "";
+      const raw = value.trim();
+      if (!raw) return "";
+
+      if (
+        raw.startsWith("http://") ||
+        raw.startsWith("https://") ||
+        raw.startsWith("data:") ||
+        raw.startsWith("blob:")
+      ) {
+        return raw;
+      }
+
+      if (raw.startsWith("file://")) {
+        return encodeURI(raw);
+      }
+
+      if (raw.startsWith("/")) {
+        return encodeURI(`file://${raw}`);
+      }
+
+      return encodeURI(raw);
+    }
+
+    function attachImageWithCandidates(img, candidates) {
+      const valid = candidates
+        .map(normalizeImageSrc)
+        .filter((v) => typeof v === "string" && v.trim());
+      if (!valid.length) return;
+
+      let idx = 0;
+      img.onerror = () => {
+        idx += 1;
+        if (idx < valid.length) img.src = valid[idx];
+      };
+      img.src = valid[idx];
+    }
+
+    function attachImageWithFallback(img, rawPath) {
+      attachImageWithCandidates(img, pathCandidates(rawPath));
+    }
+
+    function questionImageRelativePath(questionId) {
+      const id = String(questionId).padStart(2, "0");
+      return `../../banco_imagens_fuvest_final/questao_${id}.png`;
+    }
+
+    function looksMathLine(line) {
+      const t = String(line || "").trim();
+      if (!t) return false;
+      if (/^\([A-E]\)/.test(t)) return false;
+      if (t.length > 90) return false;
+      if (/dispon[ií]vel em|adaptad[oa]/i.test(t)) return false;
+
+      const words = t.split(/\s+/);
+      if (words.length > 12 && /[.!?]/.test(t)) return false;
+
+      const mathTokens = t.match(/(\\frac|\\sum|\\log|\\sin|\\cos|\\tan|log|sen|sin|cos|tan|sqrt|[=+\-*/^]|[π𝜋]|[≤≥]|[∑]|[෍]|[௜]|[ଽଵଶଷ])/gi);
+      const mathCount = mathTokens ? mathTokens.length : 0;
+      const letterCount = (t.match(/[A-Za-zÀ-ÿ]/g) || []).length;
+
+      return mathCount >= 2 && letterCount <= t.length * 0.78;
+    }
+
+    function normalizeInlineAlternativeMath(value) {
+      let text = normalizeOcrText(value);
+      text = text.replace(/\bsen\s*\n+\s*π\s*\n+\s*2\b/gi, "\\(\\sin\\frac{\\pi}{2}\\)");
+      text = text.replace(/\bsen\s+π\s+2\b/gi, "\\(\\sin\\frac{\\pi}{2}\\)");
+      text = text.replace(/\bcos\s*\n+\s*π\b/gi, "\\(\\cos\\pi\\)");
+      text = text.replace(/\bcos\s+π\b/gi, "\\(\\cos\\pi\\)");
+      text = text.replace(/\bsen\s*\n+\s*π\b/gi, "\\(\\sin\\pi\\)");
+      text = text.replace(/\bsen\s+π\b/gi, "\\(\\sin\\pi\\)");
+      return text;
+    }
+
+    function renderTextWithInlineLatex(text, latexQueue, options = {}) {
+      const injectLatex = options.injectLatex !== false;
+      const processInlineMath = options.processInlineMath === true;
+      const compactLines = options.compactLines === true;
+      const sourceText = processInlineMath
+        ? normalizeInlineAlternativeMath(text)
+        : normalizeOcrText(text);
+      const lines = sourceText.split("\n");
+
+      if (!injectLatex && compactLines) {
+        const merged = joinProseLines(lines);
+        return escapeHtml(merged);
+      }
+
+      const out = [];
+
+      for (const raw of lines) {
+        const line = raw.trim();
+        if (!line) {
+          out.push("");
+          continue;
+        }
+
+        if (injectLatex && looksMathLine(line) && latexQueue.length) {
+          const snippet = latexQueue.shift();
+          out.push(`\\[${escapeHtml(snippet)}\\]`);
+        } else {
+          out.push(escapeHtml(line));
+        }
+      }
+
+      return out.join("<br>");
+    }
+
+    function isLikelyOcrMathNoiseLine(line) {
+      const t = String(line || "").trim();
+      if (!t) return false;
+
+      if (looksMathLine(t)) return true;
+      if (/^[0-9]+$/.test(t)) return true;
+      if (/^log_?\d+$/i.test(t)) return true;
+      if (/^[(){}\[\]+\-=/\\*.,\s]+$/.test(t)) return true;
+      if (t.length <= 4 && /[^\x20-\x7E]/.test(t) && !/[A-Za-zÀ-ÿ]/.test(t)) return true;
+      if (/[∑√≤≥∞]/.test(t)) return true;
+
+      const tokens = t.split(/\s+/);
+      if (
+        tokens.length <= 4 &&
+        tokens.every((tok) =>
+          /^[0-9()+\-*/=.]+$/.test(tok) || /^log_?\d+$/i.test(tok)
+        )
+      ) {
+        return true;
+      }
+
+      return false;
+    }
+
+    function isComplexMathLine(line) {
+      const t = String(line || "").trim();
+      if (!t) return false;
+      if (/=/.test(t)) return true;
+      if (/log|∑|sum|P_i|P\(|E\s*=|\\frac|\\sum/i.test(t)) return true;
+      return false;
+    }
+
+    function isMathCueLine(line) {
+      const t = String(line || "").trim().toLowerCase();
+      if (!t) return false;
+      if (t.endsWith(":")) return true;
+      return /a saber|tem-se|equa[cç][aã]o|calcula-se|dado por/i.test(t);
+    }
+
+    function cleanProseLine(line) {
+      const cleaned = String(line || "")
+        .replace(/^[0-9]+[.,]?\s+(?=[A-Za-zÀ-ÿ])/u, "")
+        .trim();
+      if (/^[A-Za-z]$/.test(cleaned)) return "";
+      return cleaned;
+    }
+
+    const COMPACT_LIST_ITEM_PATTERN = "(?:\\(?[A-Za-zÀ-ÿ0-9]{1,3}\\)?|[^A-Za-zÀ-ÿ0-9\\s])\\s*[–—-]\\s+";
+
+    function compactListItemRegex(flags = "g") {
+      const finalFlags = flags.includes("u") ? flags : `${flags}u`;
+      return new RegExp(COMPACT_LIST_ITEM_PATTERN, finalFlags);
+    }
+
+    function isLegendOrBulletLine(line) {
+      const trimmed = String(line || "").trim();
+      if (!trimmed) return false;
+      return compactListItemRegex("u").test(trimmed);
+    }
+
+    function isLegendIntroLine(line) {
+      const trimmed = String(line || "").trim();
+      if (!trimmed) return false;
+      return /:\s*$/.test(trimmed);
+    }
+
+    function forceStructuredListLineBreaks(text) {
+      let value = String(text || "").trim();
+      if (!value) return "";
+
+      const itemLeadCount = (value.match(compactListItemRegex("gu")) || []).length;
+      if (itemLeadCount < 2) {
+        return value;
+      }
+
+      const afterColonRegex = new RegExp(`:\\s*(?=${COMPACT_LIST_ITEM_PATTERN})`, "gu");
+      const afterSemicolonRegex = new RegExp(`;\\s*(?=${COMPACT_LIST_ITEM_PATTERN})`, "gu");
+      const beforeItemRegex = new RegExp(`\\s+(?=${COMPACT_LIST_ITEM_PATTERN})`, "gu");
+
+      value = value
+        .replace(afterColonRegex, ":\n")
+        .replace(afterSemicolonRegex, ";\n")
+        .replace(beforeItemRegex, "\n")
+        .replace(/\n{3,}/g, "\n\n")
+        .trim();
+
+      return value;
+    }
+
+    function renderStructuredTextBlock(text) {
+      const formattedText = forceStructuredListLineBreaks(text);
+      const escaped = escapeHtml(formattedText);
+      const compactListHtmlRegex = new RegExp(`(:|;)\\s*(?=${COMPACT_LIST_ITEM_PATTERN})`, "gu");
+
+      return escaped
+        .replace(compactListHtmlRegex, "$1<br>")
+        .replace(/\n/g, "<br>");
+    }
+
+    function expandStructuredLines(rawLines) {
+      const expanded = [];
+
+      safeArray(rawLines).forEach((line) => {
+        const formatted = forceStructuredListLineBreaks(line);
+        const parts = String(formatted || "").split("\n");
+
+        parts.forEach((part) => {
+          expanded.push(part);
+        });
+      });
+
+      return expanded;
+    }
+
+    function shouldPreserveProseLineBreak(previousLine, currentLine) {
+      const prev = String(previousLine || "").trim();
+      const curr = String(currentLine || "").trim();
+      if (!prev || !curr) return false;
+
+      if (isLegendOrBulletLine(prev) || isLegendOrBulletLine(curr)) {
+        return true;
+      }
+
+      if (isLegendIntroLine(prev)) {
+        return true;
+      }
+
+      if (/[;:]$/.test(prev)) {
+        return true;
+      }
+
+      if (/^[“"]/.test(curr) && /[.!?…:]$/.test(prev)) {
+        return true;
+      }
+
+      if (/[”"]$/.test(prev) && /^[A-ZÁÀÂÃÉÈÊÍÌÎÓÒÔÕÚÙÛÇ]/.test(curr)) {
+        return true;
+      }
+
+      return false;
+    }
+
+    function joinProseLines(lines, options = {}) {
+      const preserveBreaks = options.preserveBreaks === true;
+
+      const cleanedLines = safeArray(lines)
+        .map((line) => cleanProseLine(line))
+        .filter(Boolean);
+
+      if (!cleanedLines.length) {
+        return "";
+      }
+
+      const grouped = [cleanedLines[0]];
+      for (let idx = 1; idx < cleanedLines.length; idx += 1) {
+        const current = cleanedLines[idx];
+        const previous = grouped[grouped.length - 1];
+
+        if (preserveBreaks && shouldPreserveProseLineBreak(previous, current)) {
+          grouped.push(current);
+        } else {
+          grouped[grouped.length - 1] = `${previous} ${current}`;
+        }
+      }
+
+      const normalized = grouped
+        .map((line) => line
+        .replace(/\s+([,.;:!?])/g, "$1")
+        .replace(/([A-Za-zÀ-ÿ0-9])([“”])/g, "$1 $2")
+        .replace(/([“"(\[])\s+/g, "$1")
+        .replace(/\s+([”")\]])/g, "$1")
+        .replace(/([”"])([A-Za-zÀ-ÿ0-9])/g, "$1 $2")
+        .replace(/[ \t]{2,}/g, " ")
+        .trim())
+        .filter(Boolean)
+        .join(preserveBreaks ? "\n" : " ")
+        .trim();
+
+      return normalized;
+    }
+
+    function renderQuestionBodyWithLatex(text, latexFragments, options = {}) {
+      const queue = Array.isArray(options.queue)
+        ? options.queue
+        : [...safeArray(latexFragments)];
+      const lines = expandStructuredLines(normalizeOcrText(text).split("\n"));
+      const blocks = [];
+      let proseBuffer = [];
+      let pendingMathBlock = false;
+      let pendingMathComplex = false;
+      let lastProseLine = "";
+
+      const flushProseBlock = () => {
+        if (!proseBuffer.length) return;
+        const paragraph = joinProseLines(proseBuffer, { preserveBreaks: true });
+        if (paragraph) {
+          blocks.push({ type: "text", content: paragraph });
+        }
+        proseBuffer = [];
+      };
+
+      const flushMathBlock = () => {
+        if (
+          pendingMathBlock &&
+          pendingMathComplex &&
+          queue.length &&
+          isMathCueLine(lastProseLine)
+        ) {
+          flushProseBlock();
+          blocks.push({ type: "math", content: queue.shift() });
+        }
+        pendingMathBlock = false;
+        pendingMathComplex = false;
+      };
+
+      for (const raw of lines) {
+        const line = raw.trim();
+        if (!line) {
+          flushMathBlock();
+          flushProseBlock();
+          continue;
+        }
+
+        if (isLikelyOcrMathNoiseLine(line)) {
+          pendingMathBlock = true;
+          if (isComplexMathLine(line)) {
+            pendingMathComplex = true;
+          }
+          continue;
+        }
+
+        flushMathBlock();
+        const proseLine = cleanProseLine(line);
+        if (!proseLine) {
+          continue;
+        }
+        proseBuffer.push(proseLine);
+        lastProseLine = proseLine;
+      }
+
+      flushMathBlock();
+      flushProseBlock();
+
+      return blocks
+        .map((block) => {
+          if (block.type === "math") {
+            return `\\[${escapeHtml(block.content)}\\]`;
+          }
+          return renderStructuredTextBlock(block.content);
+        })
+        .join("<br><br>");
+    }
+
+    function splitEnunciadoForInlineIllustration(text) {
+      const normalized = normalizeOcrText(text || "").trim();
+      if (!normalized) return null;
+
+      const cuePatterns = [
+        /conforme a figura a seguir[:.]?/i,
+        /observe a figura a seguir[:.]?/i,
+        /veja a figura (?:a seguir|abaixo)[:.]?/i,
+        /na figura (?:a seguir|abaixo)[:.]?/i,
+        /de acordo com a figura (?:a seguir|abaixo)[:.]?/i,
+      ];
+
+      let selectedMatch = null;
+      cuePatterns.forEach((pattern) => {
+        const match = pattern.exec(normalized);
+        if (!match) return;
+        if (!selectedMatch || match.index < selectedMatch.index) {
+          selectedMatch = match;
+        }
+      });
+
+      if (!selectedMatch) return null;
+
+      const splitIndex = selectedMatch.index + selectedMatch[0].length;
+      const before = normalized.slice(0, splitIndex).trim();
+      const after = normalized.slice(splitIndex).trim();
+      if (!before || !after) return null;
+      if (after.length < 20) return null;
+
+      return { before, after };
+    }
+
+    function compactMathLine(line) {
+      return normalizeOcrText(line)
+        .replace(/[−–—]/g, "-")
+        .replace(/\s+/g, "");
+    }
+
+    function isSimpleNumberToken(token) {
+      return /^\d+$/.test(token);
+    }
+
+    function parseLogToken(token) {
+      const compact = compactMathLine(token);
+
+      let match = compact.match(/^log_?(\d)(\d+)$/i);
+      if (match) {
+        return `\\log_{${match[1]}}${match[2]}`;
+      }
+
+      match = compact.match(/^log_?(\d+)$/i);
+      if (match) {
+        return `\\log_{2}${match[1]}`;
+      }
+
+      return null;
+    }
+
+    function parseDenominatorWithLog(token) {
+      const compact = compactMathLine(token);
+
+      let match = compact.match(/^(\d+)log_?(\d)(\d+)$/i);
+      if (match) {
+        return {
+          denominator: match[1],
+          log: `\\log_{${match[2]}}${match[3]}`,
+        };
+      }
+
+      match = compact.match(/^(\d+)log_?(\d+)$/i);
+      if (match) {
+        return {
+          denominator: match[1],
+          log: `\\log_{2}${match[2]}`,
+        };
+      }
+
+      return null;
+    }
+
+    function tryAlternativeMathLatex(rawText) {
+      const lines = normalizeOcrText(rawText)
+        .split("\n")
+        .map((line) => compactMathLine(line))
+        .filter(Boolean);
+
+      if (!lines.length) {
+        return null;
+      }
+
+      if (lines.length === 1) {
+          if (isSimpleNumberToken(lines[0])) return lines[0];
+          return parseLogToken(lines[0]);
+        }
+
+      if (lines.length === 2) {
+        if (isSimpleNumberToken(lines[0]) && isSimpleNumberToken(lines[1])) {
+          return `\\frac{${lines[0]}}{${lines[1]}}`;
+        }
+
+        const denLog = parseDenominatorWithLog(lines[1]);
+        if (isSimpleNumberToken(lines[0]) && denLog) {
+          return `\\frac{${lines[0]}}{${denLog.denominator}}${denLog.log}`;
+        }
+      }
+
+      if (lines.length >= 3) {
+        const leading = lines[0].match(/^(\d+)-$/);
+        const denLog = parseDenominatorWithLog(lines[2]);
+        if (leading && isSimpleNumberToken(lines[1]) && denLog) {
+          return `${leading[1]}-\\frac{${lines[1]}}{${denLog.denominator}}${denLog.log}`;
+        }
+      }
+
+      if (lines.length >= 5) {
+        const denominatorLeft = lines[1].match(/^(\d+)-$/);
+        const log = parseLogToken(lines[4]);
+        if (
+          isSimpleNumberToken(lines[0]) &&
+          denominatorLeft &&
+          isSimpleNumberToken(lines[2]) &&
+          isSimpleNumberToken(lines[3]) &&
+          log
+        ) {
+          return `\\frac{${lines[0]}}{${denominatorLeft[1]}}-\\frac{${lines[2]}}{${lines[3]}}${log}`;
+        }
+      }
+
+      return null;
+    }
+
+    function latexBodyFragmentsForQuestion(fragments) {
+      return safeArray(fragments).filter((snippet) => {
+        if (typeof snippet !== "string") return false;
+        const s = normalizeOcrText(snippet).trim();
+        if (!s) return false;
+
+        if (/=/.test(s)) return true;
+        if (/\\sum|\\int|\\prod/.test(s)) return true;
+
+        // Evita expressoes curtas tipicas de alternativas de multipla escolha.
+        if (s.length <= 26) return false;
+        return /\\frac/.test(s) && s.length >= 30;
+      });
+    }
+
+    function buildQuestionOrder(structured, questionsText) {
+      const out = [];
+      const seen = new Set();
+
+      safeArray(structured?.stage2?.pages).forEach((page) => {
+        safeArray(page?.segments).forEach((segment) => {
+          safeArray(segment?.question_ids).forEach((qid) => {
+            if (Number.isInteger(qid) && !seen.has(qid)) {
+              seen.add(qid);
+              out.push(qid);
+            }
+          });
+        });
+      });
+
+      safeArray(questionsText?.questions).forEach((question) => {
+        const qid = question?.question_id;
+        if (Number.isInteger(qid) && !seen.has(qid)) {
+          seen.add(qid);
+          out.push(qid);
+        }
+      });
+
+      safeArray(structured?.structured_questions).forEach((question) => {
+        const qid = question?.question_id;
+        if (Number.isInteger(qid) && !seen.has(qid)) {
+          seen.add(qid);
+          out.push(qid);
+        }
+      });
+
+      return out;
+    }
+
+    function buildLatexMap(structured) {
+      const map = new Map();
+      const fragments = safeArray(structured?.stage1?.data?.latex_fragments);
+
+      fragments.forEach((item) => {
+        const snippet = typeof item?.snippet_latex === "string" ? item.snippet_latex.trim() : "";
+        if (!snippet) return;
+
+        safeArray(item?.related_question_ids).forEach((qid) => {
+          if (!Number.isInteger(qid)) return;
+          if (!map.has(qid)) map.set(qid, []);
+          map.get(qid).push(snippet);
+        });
+      });
+
+      return map;
+    }
+
+    function buildSharedContextMap(structured) {
+      const map = new Map();
+      const contexts = safeArray(structured?.stage1?.data?.shared_contexts);
+
+      contexts.forEach((item, idx) => {
+        const contextId = (item && item.context_id) ? String(item.context_id) : `ctx_${idx + 1}`;
+        const wrapped = { ...item, context_id: contextId };
+
+        safeArray(item?.question_ids).forEach((qid) => {
+          if (!Number.isInteger(qid)) return;
+          if (!map.has(qid)) map.set(qid, []);
+          map.get(qid).push(wrapped);
+        });
+      });
+
+      return map;
+    }
+
+    function buildWideVisualMap(structured) {
+      const map = new Map();
+
+      safeArray(structured?.stage1?.data?.wide_visuals).forEach((item) => {
+        const desc = typeof item?.description === "string" ? item.description : "";
+        safeArray(item?.related_question_ids).forEach((qid) => {
+          if (!Number.isInteger(qid)) return;
+          if (!map.has(qid)) map.set(qid, []);
+          map.get(qid).push({ description: desc, page_number: item?.page_number });
+        });
+      });
+
+      return map;
+    }
+
+    function buildSharedImageMap(structured) {
+      const map = new Map();
+      const wideVisualsByPage = new Map();
+
+      safeArray(structured?.stage1?.data?.wide_visuals).forEach((item) => {
+        const page = item?.page_number;
+        if (!Number.isInteger(page)) return;
+        if (!wideVisualsByPage.has(page)) {
+          wideVisualsByPage.set(page, []);
+        }
+        wideVisualsByPage.get(page).push(item);
+      });
+
+      safeArray(structured?.stage2?.pages).forEach((page) => {
+        const pageNumber = page?.page_number;
+        const layoutMode = String(page?.layout_mode || "");
+        const hasWideVisualInPage = Number.isInteger(pageNumber)
+          ? safeArray(wideVisualsByPage.get(pageNumber)).length > 0
+          : false;
+
+        safeArray(page?.segments).forEach((segment) => {
+          const questionIds = safeArray(segment?.question_ids).filter((value) => Number.isInteger(value));
+          if (questionIds.length < 2) return;
+
+          const isSharedVisualSegment = layoutMode === "full_page" || hasWideVisualInPage;
+          if (!isSharedVisualSegment) return;
+
+          questionIds.forEach((qid) => {
+            if (!map.has(qid)) {
+              map.set(qid, []);
+            }
+
+            const others = questionIds.filter((other) => other !== qid);
+            map.get(qid).push({
+              page_number: pageNumber,
+              with_question_ids: others,
+              reason: segment?.notes || page?.reason || "",
+            });
+          });
+        });
+      });
+
+      return map;
+    }
+
+    function visualAlternativeQuestionIds(structured) {
+      const set = new Set();
+      safeArray(structured?.stage1?.data?.questions_with_image_or_table_alternatives).forEach((qid) => {
+        if (Number.isInteger(qid)) set.add(qid);
+      });
+      return set;
+    }
+
+    function buildVisualAlternativesMap(visualAlternativesPayload) {
+      const map = new Map();
+      safeArray(visualAlternativesPayload?.items).forEach((item) => {
+        const qid = item?.question_id;
+        if (Number.isInteger(qid)) {
+          map.set(qid, item);
+        }
+      });
+      return map;
+    }
+
+    function renderOverview(structured) {
+      const sourcePdf = structured?.stage1?.source_pdf || "-";
+      const scope = structured?.stage1?.page_scope || {};
+      const stage2Count = safeArray(structured?.stage2?.pages).length;
+      const stage3Count = safeArray(structured?.stage3?.items).length;
+      const structuredCount = safeArray(structured?.structured_questions).length;
+
+      return section(
+        "Resumo",
+        `
+          <div class="kvs">
+            <div class="k">PDF</div><div>${escapeHtml(sourcePdf)}</div>
+            <div class="k">Pagina inicial</div><div>${escapeHtml(scope.start_page ?? "-")}</div>
+            <div class="k">Pagina final</div><div>${escapeHtml(scope.end_page ?? "-")}</div>
+            <div class="k">Total de paginas</div><div>${escapeHtml(scope.total_pdf_pages ?? "-")}</div>
+            <div class="k">Paginas no stage2</div><div>${stage2Count}</div>
+            <div class="k">Ilustracoes stage3</div><div>${stage3Count}</div>
+            <div class="k">Questoes estruturadas</div><div>${structuredCount}</div>
+          </div>
+        `
+      );
+    }
+
+    function renderSharedContextCard(context) {
+      const qids = safeArray(context.question_ids).filter((v) => Number.isInteger(v));
+      const contextText = normalizeOcrText(context.full_text || context.text_full || context.text_excerpt || "");
+      const el = document.createElement("article");
+      el.className = "context-card";
+      el.innerHTML = `
+        <div class="context-head">
+          <span class="badge">Texto compartilhado</span>
+          <span class="badge">Aplica-se a mais de uma questao</span>
+          <span class="badge">QIDs: ${escapeHtml(qids.join(", ") || "-")}</span>
+        </div>
+        <div class="shared-note">Leia o texto abaixo para responder as questoes ${escapeHtml(qids.join(" e ") || "relacionadas")}.</div>
+        <div class="question-body">${multilineToHtml(contextText)}</div>
+      `;
+
+      return el;
+    }
+
+    function renderQuestionImageBlock(title, candidates, subtitle) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "card";
+      wrapper.innerHTML = `<h3>${escapeHtml(title)}</h3>${subtitle ? `<div class=\"small\">${escapeHtml(subtitle)}</div>` : ""}`;
+
+      const img = document.createElement("img");
+      img.className = "preview";
+      img.alt = title;
+      attachImageWithCandidates(img, candidates);
+      wrapper.appendChild(img);
+
+      return wrapper;
+    }
+
+    function renderQuestionsOrdered(structured, questionsText, visualAlternativesPayload) {
+      const sectionEl = section("Questoes em ordem", "");
+      const holder = document.createElement("div");
+      holder.className = "question-list";
+
+      const questionTextMap = mapByQuestionId(questionsText?.questions);
+      const stage3Map = mapByQuestionId(structured?.stage3?.items);
+      const latexMap = buildLatexMap(structured);
+      const sharedMap = buildSharedContextMap(structured);
+      const sharedImageMap = buildSharedImageMap(structured);
+      const wideVisualMap = buildWideVisualMap(structured);
+      const visualAltSet = visualAlternativeQuestionIds(structured);
+      const visualAltMap = buildVisualAlternativesMap(visualAlternativesPayload);
+      const order = buildQuestionOrder(structured, questionsText);
+
+      if (!order.length) {
+        sectionEl.innerHTML += "<div class='empty'>Sem questoes para renderizar.</div>";
+        return sectionEl;
+      }
+
+      const renderedContextIds = new Set();
+      const letters = ["A", "B", "C", "D", "E"];
+
+      order.forEach((questionId) => {
+        const sharedContexts = safeArray(sharedMap.get(questionId));
+        const sharedImageHints = safeArray(sharedImageMap.get(questionId));
+
+        sharedContexts.forEach((context) => {
+          const cid = String(context.context_id || "");
+          if (cid && !renderedContextIds.has(cid)) {
+            renderedContextIds.add(cid);
+            holder.appendChild(renderSharedContextCard(context));
+          }
+        });
+
+        const textQuestion = questionTextMap.get(questionId) || {};
+        const stage3Item = stage3Map.get(questionId) || null;
+        const wideVisualHints = safeArray(wideVisualMap.get(questionId));
+        const hasWideVisual = wideVisualHints.length > 0;
+        const hasVisualAlternatives = visualAltSet.has(questionId);
+        const altVisualItem = visualAltMap.get(questionId) || null;
+
+        const latexQueueRaw = [...(latexMap.get(questionId) || [])];
+        const latexQueueBody = latexBodyFragmentsForQuestion(latexQueueRaw);
+
+        const card = document.createElement("article");
+        card.className = "question-card";
+
+        const pageNumbers = safeArray(textQuestion.page_numbers);
+        card.innerHTML = `
+          <div class="question-head">
+            <span class="badge">Questao ${escapeHtml(questionId)}</span>
+            ${pageNumbers.length ? `<span class=\"badge\">Paginas: ${escapeHtml(pageNumbers.join(", "))}</span>` : ""}
+            ${sharedContexts.length ? `<span class="badge">Contexto compartilhado</span>` : ""}
+            ${sharedImageHints.length ? `<span class="badge">Imagem compartilhada</span>` : ""}
+            ${hasWideVisual ? `<span class=\"badge\">Imagem ampla</span>` : ""}
+            ${hasVisualAlternatives ? `<span class=\"badge\">Alternativas visuais</span>` : ""}
+          </div>
+        `;
+
+        if (sharedContexts.length) {
+          const note = document.createElement("div");
+          note.className = "shared-note";
+          note.textContent = "Esta questao depende de um texto compartilhado exibido imediatamente acima.";
+          card.appendChild(note);
+        }
+
+        if (sharedImageHints.length) {
+          const relatedQuestions = [...new Set(sharedImageHints.flatMap((item) => safeArray(item.with_question_ids)))];
+          const note = document.createElement("div");
+          note.className = "shared-note";
+          note.textContent = relatedQuestions.length
+            ? `A imagem/area visual desta questao e compartilhada com as questoes: ${relatedQuestions.join(", ")}.`
+            : "A imagem/area visual desta questao e compartilhada com outra(s) questao(oes).";
+          card.appendChild(note);
+        }
+
+        const fullQuestionImageCandidates = [];
+        if (stage3Item && stage3Item.input_image) {
+          fullQuestionImageCandidates.push(...pathCandidates(stage3Item.input_image));
+        }
+        fullQuestionImageCandidates.push(questionImageRelativePath(questionId));
+
+        const stage3CropCandidates = [];
+        safeArray(stage3Item?.regions).forEach((region) => {
+          if (region && region.output_image) {
+            stage3CropCandidates.push(...pathCandidates(region.output_image));
+          }
+        });
+        if (!stage3CropCandidates.length && stage3Item && stage3Item.output_image) {
+          stage3CropCandidates.push(...pathCandidates(stage3Item.output_image));
+        }
+
+        const uniqueStage3CropCandidates = [...new Set(stage3CropCandidates)];
+
+        if (hasWideVisual && !uniqueStage3CropCandidates.length) {
+          const wideSubtitle = wideVisualHints.map((v) => v.description).filter(Boolean).join(" | ");
+          card.appendChild(
+            renderQuestionImageBlock(
+              "Imagem principal da questao (fallback)",
+              fullQuestionImageCandidates,
+              wideSubtitle || "",
+            )
+          );
+        }
+
+        const enunciado = textQuestion.enunciado || "Enunciado ainda nao extraido para esta questao.";
+        const parsedEnunciado = splitReferences(enunciado);
+        const enunciadoBody = parsedEnunciado.body || enunciado;
+        const latexBodyQueue = [...latexQueueBody];
+
+        const appendQuestionBody = (bodyText) => {
+          if (typeof bodyText !== "string" || !bodyText.trim()) {
+            return;
+          }
+
+          const enunciadoDiv = document.createElement("div");
+          enunciadoDiv.className = "question-body";
+          enunciadoDiv.innerHTML = renderQuestionBodyWithLatex(
+            bodyText,
+            latexQueueBody,
+            { queue: latexBodyQueue },
+          );
+          card.appendChild(enunciadoDiv);
+        };
+
+        const inlineSplit = (uniqueStage3CropCandidates.length)
+          ? splitEnunciadoForInlineIllustration(enunciadoBody)
+          : null;
+
+        if (inlineSplit) {
+          appendQuestionBody(inlineSplit.before);
+          card.appendChild(
+            renderQuestionImageBlock(
+              "Ilustracao associada",
+              uniqueStage3CropCandidates,
+              "Recorte gerado no stage3",
+            )
+          );
+          appendQuestionBody(inlineSplit.after);
+        } else {
+          appendQuestionBody(enunciadoBody);
+
+          if (!hasWideVisual && uniqueStage3CropCandidates.length) {
+            card.appendChild(
+              renderQuestionImageBlock(
+                "Ilustracao associada",
+                uniqueStage3CropCandidates,
+                "Recorte gerado no stage3",
+              )
+            );
+          }
+        }
+
+        if (hasWideVisual && uniqueStage3CropCandidates.length && !inlineSplit) {
+          card.appendChild(
+            renderQuestionImageBlock(
+              "Recorte(s) de ilustracao",
+              uniqueStage3CropCandidates,
+              "Gerado no stage3",
+            )
+          );
+        }
+
+        const alternatives = textQuestion.alternativas || {};
+
+        if (altVisualItem && altVisualItem.alternatives) {
+          const altTitle = document.createElement("div");
+          altTitle.className = "alt-title";
+          altTitle.textContent = "Alternativas";
+          card.appendChild(altTitle);
+
+          const altGrid = document.createElement("div");
+          altGrid.className = "alt-visual-grid";
+
+          letters.forEach((letter) => {
+            const altMeta = altVisualItem.alternatives[letter] || null;
+            const altCard = document.createElement("div");
+            altCard.className = "alt-visual-card";
+            altCard.innerHTML = `<strong>(${letter})</strong>`;
+
+            if (altMeta && altMeta.output_image) {
+              const img = document.createElement("img");
+              img.className = "preview";
+              img.alt = `Alternativa ${letter} da questao ${questionId}`;
+              attachImageWithCandidates(
+                img,
+                [
+                  ...pathCandidates(altMeta.output_image),
+                  ...pathCandidates(altVisualItem?.input_image),
+                  questionImageRelativePath(questionId),
+                ],
+              );
+              altCard.appendChild(img);
+            } else {
+              const msg = document.createElement("div");
+              msg.className = "small";
+              msg.textContent = "Imagem da alternativa nao encontrada.";
+              altCard.appendChild(msg);
+            }
+
+            const altText = typeof alternatives[letter] === "string" ? alternatives[letter].trim() : "";
+            if (altText) {
+              const textDiv = document.createElement("div");
+              textDiv.className = "small";
+              textDiv.style.marginTop = "6px";
+
+              const mathLatex = tryAlternativeMathLatex(altText);
+              if (mathLatex) {
+                textDiv.classList.add("alt-math");
+                textDiv.innerHTML = `\\[${mathLatex}\\]`;
+              } else {
+                textDiv.innerHTML = renderTextWithInlineLatex(altText, latexQueueRaw, {
+                  injectLatex: false,
+                  processInlineMath: true,
+                  compactLines: true,
+                });
+              }
+              altCard.appendChild(textDiv);
+            }
+
+            altGrid.appendChild(altCard);
+          });
+
+          card.appendChild(altGrid);
+        } else if (hasVisualAlternatives) {
+          const altTitle = document.createElement("div");
+          altTitle.className = "alt-title";
+          altTitle.textContent = "Alternativas";
+          card.appendChild(altTitle);
+
+          const fallback = document.createElement("div");
+          fallback.className = "card";
+          fallback.innerHTML = "<h3>Painel de alternativas visuais</h3><div class='small'>Sem cortes por alternativa ainda; exibindo imagem completa da questao.</div>";
+
+          const img = document.createElement("img");
+          img.className = "preview";
+          img.alt = `Painel de alternativas da questao ${questionId}`;
+          attachImageWithCandidates(img, fullQuestionImageCandidates);
+          fallback.appendChild(img);
+          card.appendChild(fallback);
+        } else {
+          const altTitle = document.createElement("div");
+          altTitle.className = "alt-title";
+          altTitle.textContent = "Alternativas";
+          card.appendChild(altTitle);
+
+          const altGrid = document.createElement("div");
+          altGrid.className = "alt-grid";
+
+          letters.forEach((letter) => {
+            const alt = typeof alternatives[letter] === "string" ? alternatives[letter] : "";
+            const item = document.createElement("div");
+            item.className = "alt-item";
+            if (alt.trim()) {
+              const mathLatex = tryAlternativeMathLatex(alt);
+              if (mathLatex) {
+                item.innerHTML = `
+                  <div class="alt-label">(${letter})</div>
+                  <div class="alt-content alt-math">\\[${mathLatex}\\]</div>
+                `;
+              } else {
+              item.innerHTML = `
+                <div class="alt-label">(${letter})</div>
+                <div class="alt-content">${renderTextWithInlineLatex(alt, latexQueueRaw, { injectLatex: false, processInlineMath: true, compactLines: true })}</div>
+              `;
+              }
+            } else {
+              item.innerHTML = `
+                <div class="alt-label">(${letter})</div>
+                <div class="alt-content"><span class="small">[nao identificado]</span></div>
+              `;
+            }
+            altGrid.appendChild(item);
+          });
+
+          card.appendChild(altGrid);
+        }
+
+        const referenceBox = renderReferenceBox(parsedEnunciado.references);
+        if (referenceBox) {
+          card.appendChild(referenceBox);
+        }
+
+        holder.appendChild(card);
+      });
+
+      sectionEl.appendChild(holder);
+      return sectionEl;
+    }
+
+    function renderDebugDetails(structured, questionsText, visualAlternativesPayload) {
+      const stage1 = structured?.stage1?.data || {};
+      const stage2Pages = safeArray(structured?.stage2?.pages).length;
+      const stage3Items = safeArray(structured?.stage3?.items).length;
+      const textQuestions = safeArray(questionsText?.questions).length;
+      const visualQuestions = safeArray(visualAlternativesPayload?.items).length;
+
+      const details = document.createElement("details");
+      details.innerHTML = `
+        <summary>Detalhes tecnicos</summary>
+        <div class="kvs" style="margin-top:10px">
+          <div class="k">Shared contexts</div><div>${safeArray(stage1.shared_contexts).length}</div>
+          <div class="k">LaTeX fragments</div><div>${safeArray(stage1.latex_fragments).length}</div>
+          <div class="k">Questoes com alternativas visuais</div><div>${safeArray(stage1.questions_with_image_or_table_alternatives).join(", ") || "-"}</div>
+          <div class="k">Paginas stage2</div><div>${stage2Pages}</div>
+          <div class="k">Itens stage3</div><div>${stage3Items}</div>
+          <div class="k">Questoes texto local</div><div>${textQuestions}</div>
+          <div class="k">Questoes com crops de alternativas</div><div>${visualQuestions}</div>
+        </div>
+      `;
+      return details;
+    }
+
+    let mathRenderRetryCount = 0;
+    let mathRenderRetryTimer = null;
+
+    function renderMath(root) {
+      if (typeof window.renderMathInElement !== "function") {
+        if (mathRenderRetryCount >= 30 || mathRenderRetryTimer !== null) {
+          return;
+        }
+
+        mathRenderRetryTimer = window.setTimeout(() => {
+          mathRenderRetryTimer = null;
+          mathRenderRetryCount += 1;
+          renderMath(root);
+        }, 120);
+        return;
+      }
+
+      mathRenderRetryCount = 0;
+      window.renderMathInElement(root, {
+        delimiters: [
+          { left: "$$", right: "$$", display: true },
+          { left: "\\[", right: "\\]", display: true },
+          { left: "\\(", right: "\\)", display: false },
+          { left: "$", right: "$", display: false }
+        ],
+        throwOnError: false
+      });
+    }
+
+    function rerender() {
+      if (!state.structured) return;
+
+      clearApp();
+      app.appendChild(renderOverview(state.structured));
+      app.appendChild(renderQuestionsOrdered(state.structured, state.questionsText, state.visualAlternatives));
+      app.appendChild(renderDebugDetails(state.structured, state.questionsText, state.visualAlternatives));
+      renderMath(app);
+    }
+
+    function loadFromEmbeddedViewerData() {
+      const embedded = window.__VIEWER_DATA__;
+      if (!embedded || typeof embedded !== "object") {
+        return false;
+      }
+
+      if (!embedded.structured || typeof embedded.structured !== "object") {
+        return false;
+      }
+
+      state.structured = embedded.structured;
+      state.questionsText =
+        embedded.questionsText && typeof embedded.questionsText === "object"
+          ? embedded.questionsText
+          : null;
+
+      if (embedded.visualAlternatives && Array.isArray(embedded.visualAlternatives.items)) {
+        state.visualAlternatives = embedded.visualAlternatives;
+      } else if (
+        state.structured?.visual_alternatives_local &&
+        Array.isArray(state.structured.visual_alternatives_local.items)
+      ) {
+        state.visualAlternatives = state.structured.visual_alternatives_local;
+      } else {
+        state.visualAlternatives = null;
+      }
+
+      rerender();
+      setStatus("Dados carregados automaticamente (viewer_data.js).");
+      return true;
+    }
+
+    async function loadDefaultJsons() {
+      if (loadFromEmbeddedViewerData()) {
+        return;
+      }
+
+      setStatus("Carregando automaticamente os JSONs padrao...");
+
+      try {
+        const [structuredRes, questionsRes, visualRes] = await Promise.all([
+          fetch("./prova_estruturada.json", { cache: "no-store" }),
+          fetch("./questoes_texto_local.json", { cache: "no-store" }),
+          fetch("./alternativas_visuais_local.json", { cache: "no-store" })
+        ]);
+
+        if (!structuredRes.ok) {
+          throw new Error(`prova_estruturada.json HTTP ${structuredRes.status}`);
+        }
+
+        state.structured = await structuredRes.json();
+
+        if (questionsRes.ok) {
+          state.questionsText = await questionsRes.json();
+        } else {
+          state.questionsText = null;
+        }
+
+        if (
+          state.structured?.visual_alternatives_local &&
+          Array.isArray(state.structured.visual_alternatives_local.items)
+        ) {
+          state.visualAlternatives = state.structured.visual_alternatives_local;
+        } else if (visualRes.ok) {
+          state.visualAlternatives = await visualRes.json();
+        } else {
+          state.visualAlternatives = null;
+        }
+
+        rerender();
+        setStatus("Dados carregados automaticamente.");
+      } catch (error) {
+        setStatus(
+          `Falha no carregamento automatico: ${error}. Rode \"python gemini_prova_3_prompts.py run ...\" para gerar viewer_data.js.`
+        );
+      }
+    }
+
+    loadDefaultJsons();
+  </script>
+</body>
+</html>

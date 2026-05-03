@@ -1,0 +1,93 @@
+{
+  "stage": "stage1",
+  "model": "gemini-2.5-flash",
+  "created_at": "2026-04-11T22:29:41.052011+00:00",
+  "source_pdf": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/fuvest2024_primeira_fase_prova_V.pdf",
+  "page_scope": {
+    "start_page": 1,
+    "end_page": 3,
+    "total_pdf_pages": 36
+  },
+  "data": {
+    "shared_contexts": [
+      {
+        "context_id": "ctx_001",
+        "text_excerpt": "É tempo de caminhar em fingido silêncio,\ne buscar o momento certo no grito,\naparentar fechar um olho evitando o cisco\ne abrir escancaradamente o outro.\n\nÉ tempo de fazer os ouvidos moucos\npara os vazios lero-leros,\ne cuidar dos passos assuntando as vias,\nir se vigiando atento, que o buraco é fundo.\n\nÉ tempo de ninguém se soltar de ninguém,\nmas olhar fundo na palma aberta\na alma de quem lhe oferece o gesto.\nO laçar de mãos não pode ser algemas,\ne sim acertada tática, necessário esquema.\n\nÉ tempo de formar novos quilombos,\nem qualquer lugar que estejamos\ne que venham dias futuros, salve 2020\nA mística quilombola persiste afirmando:\n\"a liberdade é uma luta constante\".\nConceição Evaristo. Jornal O Globo, 31/12/2019.",
+        "question_ids": [
+          1,
+          2
+        ],
+        "page_numbers": [
+          2
+        ],
+        "confidence": 1.0
+      },
+      {
+        "context_id": "ctx_002",
+        "text_excerpt": "WHEN RACISM & SEXISM ARE\nNO LONGER FASHIONABLE,\nWHAT WILL YOUR ART\nCOLLECTION BE WORTH?\nThe art market won't bestow mega-buck prices on the work\nof a few white males forever. For the 17.7 million you just spent\non a single Jasper Johns painting, you could have bought at\nleast one work by all of these women and artists of color.\nBernice Abbott\nAnni Albers\nSofonisba Anguisolla\nDiane Arbus\nVanessa Bell\nIsabel Bishop\nRosa Bonheur\nElizabeth Bougereau\nMargaret Bourke-White\nRomaine Brooks\nJulia Margaret Cameron\nEmily Carr\nRosalba Carriera\nMary Cassatt\nConstance Marie Charpentier\nImogen Cunningham\nSonia Delaunay\nElaine de Kooning\nLavinia Fontana\nMeta Warwick Fuller\nArtemisia Gentileschi\nMarguérite Gérard\nNatalia Goncharova\nKate Greenaway\nBarbara Hepworth\nEva Hesse\nHannah Hoch\nAnna Huntingdon\nMay Howard Jackson\nFrida Kahlo\nAngelica Kauffmann\nHilma of Klimt\nKathe Kollwitz\nLee Krasner\nDorothea Lange\nMarie Laurencin\nEdmonia Lewis\nSarah Peale\nLjubova Popova\nOlga Rosanova\nNellie Mae Rowe\nRachel Ruysch\nJudith Leyster\nBarbara Longhi\nKay Sage\nDora Maar\nLee Miller\nLisette Model\nPaula Modersohn-Becker\nTina Modotti\nBerthe Morisot\nGrandma Moses\nGabriele Münter\nAlice Neel\nLouise Nevelson\nGeorgia O'Keeffe\nMeret Oppenheim\nAugusta Savage\nVavara Stepanova\nFlorine Stettheimer\nSophie Taeuber-Arp\nAlma Thomas\nMarietta Robusti Tintoretto\nSuzanne Valadon\nRemedios Varo\nElizabeth Vigée Le Brun\nLaura Wheeling Waring\nPlease send $ and comments to:\nBox 1056 Cooper Sta. NY, NY 10276\nGUERRILLA GIRLS\nCONSCIENCE OF THE ART WORLD\nDisponível em https://www.tate.org.uk/art/artworks/.",
+        "question_ids": [
+          4,
+          5
+        ],
+        "page_numbers": [
+          3
+        ],
+        "confidence": 1.0
+      }
+    ],
+    "questions_with_image_or_table_alternatives": [],
+    "wide_visuals": [],
+    "question_hints": [
+      {
+        "question_id": 1,
+        "probable_page": 2,
+        "has_shared_context": true,
+        "has_visual_alternatives": false,
+        "has_wide_visual": false
+      },
+      {
+        "question_id": 2,
+        "probable_page": 2,
+        "has_shared_context": true,
+        "has_visual_alternatives": false,
+        "has_wide_visual": false
+      },
+      {
+        "question_id": 3,
+        "probable_page": 2,
+        "has_shared_context": false,
+        "has_visual_alternatives": false,
+        "has_wide_visual": false
+      },
+      {
+        "question_id": 4,
+        "probable_page": 3,
+        "has_shared_context": true,
+        "has_visual_alternatives": false,
+        "has_wide_visual": false
+      },
+      {
+        "question_id": 5,
+        "probable_page": 3,
+        "has_shared_context": true,
+        "has_visual_alternatives": false,
+        "has_wide_visual": false
+      },
+      {
+        "question_id": 6,
+        "probable_page": 3,
+        "has_shared_context": false,
+        "has_visual_alternatives": false,
+        "has_wide_visual": false
+      },
+      {
+        "question_id": 7,
+        "probable_page": 3,
+        "has_shared_context": false,
+        "has_visual_alternatives": false,
+        "has_wide_visual": false
+      }
+    ],
+    "latex_fragments": []
+  }
+}

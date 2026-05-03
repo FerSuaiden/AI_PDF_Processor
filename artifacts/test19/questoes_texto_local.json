@@ -1,0 +1,108 @@
+{
+  "source_pdf": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/fuvest2026-fase1-prova-V1.pdf",
+  "source_stage2": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test19/stage2_page_plan.json",
+  "page_range": {
+    "start_page": 3,
+    "end_page": 5
+  },
+  "questions": [
+    {
+      "question_id": 4,
+      "page_numbers": [
+        3
+      ],
+      "enunciado": "O conceito de entropia permeia diversas áreas do \nconhecimento e foi introduzido na Teoria da Informação por \nClaude Shannon, que desenvolveu uma forma de calcular a \nentropia 𝐸 de um sistema, a saber \n \n𝐸 = −෍𝑃 ௜ሺ𝑥ሻlogଶ𝑃௜(𝑥)\n௜\n \n \nem que 𝑃௜(𝑥) é a probabilidade do i-ésimo resultado para a \nvariável 𝑥. \nPor exemplo, considere uma sequência com duas letras A \ncoloridas, a primeira azul e a segunda vermelha (AA). Se \nessas duas letras fossem colocadas numa urna, a \nprobabilidade de se retirar, sem observar, a letra azul, como \nna sequência original, é \nଵ\nଶ. Devolve-se a letra à urna e sorteia-\nse novamente. A probabilidade de sair vermelha é novamente \nଵ\nଶ, e nesse caso tem-se: \n \n𝐸 = −෍𝑃 ௜(𝑥) logଶ𝑃௜(𝑥)\n௜\n= −൬1\n2 logଶ\n1\n2\n+ 𝟏\n𝟐 𝐥𝐨𝐠𝟐\n𝟏\n𝟐\n ൰=1 \n \nPara uma sequência com 4 letras A, as duas primeiras azuis e \nas duas últimas vermelhas (AAAA), colocando-as numa urna \ne sorteando uma, a probabilidade de sair azul é \nଵ\nଶ. Devolve-se \na letra e sorteia-se novamente. A probabilidade da segunda \nletra sorteada ser azul, como na sequência original, é \nnovamente \nଵ\nଶ. Procedendo dessa forma para as duas letras \nvermelhas, tem-se: \n \n𝐸 = −෍𝑃 ௜(𝑥) logଶ𝑃௜(𝑥)\n௜\n \n= −൬1\n2 logଶ\n1\n2\n+ 1\n2 logଶ\n1\n2\n+ 𝟏\n𝟐 𝐥𝐨𝐠𝟐\n𝟏\n𝟐\n + 𝟏\n𝟐 𝐥𝐨𝐠𝟐\n𝟏\n𝟐\n ൰=2 \n \nCom base nessas informações, qual o valor da entropia 𝐸 , no \ncaso de uma sequência com 4 letras A, sendo as 3 primeiras \nazuis e a última vermelha (AAAA)?",
+      "alternativas": {
+        "A": "5 −\nଽ\nସlogଶ3",
+        "B": "ଵ\nଶ−\nହ\nଶ\nlogଶ3",
+        "C": "ଷ\nଶ",
+        "D": "ଽ\nସlogଶ3",
+        "E": "3"
+      }
+    },
+    {
+      "question_id": 5,
+      "page_numbers": [
+        3
+      ],
+      "enunciado": "A difusão de descobertas científicas complexas em \nlinguagens mais acessíveis e lúdicas é uma forma de expor a \nimportância da ciência. Um recente trabalho da Universidade \nde Würzburg, na Alemanha, que descreveu uma nova ligação \ntripla entre átomos de B (Boro) e C (Carbono), foi apresentado \ncomo se os autores estivessem jogando uma espécie de \n“bingo das ligações químicas”, conforme a figura a seguir: \n \n \n \n“No bingo das ligações químicas, os pesquisadores \nconseguiram completar a lacuna entre o Boro e o Carbono.” \n \nDisponível em https://www.tecmundo.com.br/ciencia/. Adaptado. \n \nAdaptando essa ideia, foi feito um jogo para identificar os tipos \nde ligações entre os elementos Na, K, Ca, C,, Br e I. Assinale \na alternativa que representa a melhor marcação do tipo de \nligação formada por esses átomos, seguindo a legenda: \n \n – ligação iônica; \n – ligação covalente; \nΔ – ligação metálica.",
+      "alternativas": {
+        "A": "",
+        "D": "Figura A Figura D",
+        "B": "",
+        "E": "Figura B Figura E",
+        "C": "Figura C"
+      }
+    },
+    {
+      "question_id": 6,
+      "page_numbers": [
+        4
+      ],
+      "enunciado": "Para uma atividade de campo voltada à valorização do \npatrimônio histórico e cultural, professores de geografia \nlevaram seus estudantes a um parque temático de \nmonumentos geográficos. Eles visitaram a réplica de uma \npirâmide regular de base quadrada com vértice a 18 metros \nde altura em relação ao centro da base. As faces da pirâmide \nestão voltadas para as direções norte, sul, leste e oeste. Para \nacessar o vértice da pirâmide, os estudantes precisaram \npercorrer uma trilha de pedestre e subir a rampa localizada na \nface norte. A trilha compreende os lados oeste, sul, leste e \nmetade do lado norte do quadrado. Essa rampa está \nlocalizada exatamente no meio da face, ou seja, é o apótema \nda pirâmide. \nSabendo-se que o volume da pirâmide é de 864 m3, quantos \nmetros, aproximadamente, os estudantes tiveram que \npercorrer para chegar até o topo da pirâmide?",
+      "alternativas": {
+        "A": "36",
+        "B": "41",
+        "C": "48",
+        "D": "54",
+        "E": "61"
+      }
+    },
+    {
+      "question_id": 7,
+      "page_numbers": [
+        4
+      ],
+      "enunciado": "Considere a equação trigonométrica \n \n𝑠𝑒𝑛 𝜋\n2 + 𝑠𝑒𝑛 𝑥 = 𝑠𝑒𝑛 (2𝑥) − cos 𝜋 \n \npara 𝑥∈ℝ ,0 ≤𝑥 <2 𝜋. \n \nUm estudante resolveu essa equação da seguinte maneira: \n \n𝑠𝑒𝑛 𝜋\n2 + 𝑠𝑒𝑛 𝑥 = 𝑠𝑒𝑛 (2𝑥) − cos 𝜋 \n1+ 𝑠𝑒𝑛 𝑥 = 𝑠𝑒𝑛 (2𝑥) +1 \n𝑠𝑒𝑛 𝑥 = 𝑠𝑒𝑛 (2𝑥) \n𝑠𝑒𝑛 𝑥 =2 𝑠𝑒𝑛 𝑥 \n2𝑠𝑒𝑛 𝑥−𝑠 𝑒 𝑛 𝑥 =0 \n𝑠𝑒𝑛 𝑥 =0 \n𝑥 =0 𝑜𝑢 𝑥 = 𝜋 \n \nA resolução apresentada pelo estudante está errada, pois ele",
+      "alternativas": {
+        "A": "considerou que cos 𝜋 vale 1.",
+        "B": "não considerou as infinitas voltas no ciclo trigonométrico \npara a resposta.",
+        "C": "considerou que sen\nగ\nଶ vale 1.",
+        "D": "não utilizou corretamente o seno da soma de dois arcos.",
+        "E": "apresentou duas respostas e não apenas uma."
+      }
+    },
+    {
+      "question_id": 8,
+      "page_numbers": [
+        4
+      ],
+      "enunciado": "A escola não pode ignorar as diferenças sociolinguísticas. \nOs professores e, por meio deles, os alunos têm que estar bem \nconscientes de que existem duas ou mais maneiras de dizer a \nmesma coisa. E mais, que essas formas alternativas servem a \npropósitos comunicativos distintos e são recebidas de \nmaneira diferenciada pela sociedade. Os alunos que chegam \nà escola falando “nós cheguemu”, “abrido” e “ele drome”, por \nexemplo, têm que ser respeitados e ver valorizadas as suas \npeculiaridades linguístico-culturais, mas têm o direito \ninalienável de aprender as variantes de prestígio dessas \nexpressões. Não se lhes pode negar esse conhecimento, sob \npena de se fecharem para eles as portas, já estreitas, da \nascensão social. \nBORTONI-RICARDO, S. M. Nós cheguemos na escola, e agora? \nSociolinguística & Educação. São Paulo: Parábola, 2005. Adaptado. \n \nDe acordo com o texto, cabe aos professores",
+      "alternativas": {
+        "A": "respeitar as variações linguísticas dos alunos, mas solicitar \nque eles utilizem a norma culta no ambiente escolar.",
+        "B": "incentivar o uso das variações regionais dos alunos, mas \nmostrar a eles que a escola recebe variantes de forma \npreconceituosa.",
+        "C": "respeitar as particularidades\n linguísticas dos alunos, mas \ndar a eles condições de aprender outras variantes.",
+        "D": "mostrar aos alunos que eles podem cometer erros em \nrelação ao uso de verbos, mas que isso pode ser \nprejudicial à ascensão social.",
+        "E": "ensinar aos alunos a norma padrão da língua, mas permitir \nque eles cometam erros para não serem excluídos pela \nsociedade."
+      }
+    },
+    {
+      "question_id": 9,
+      "page_numbers": [
+        5
+      ],
+      "enunciado": "Em meados do século XIX, Nísia Floresta publicou no Brasil \nseu Opúsculo Humanitário, uma ardente defesa da educação \ncomo meio para eliminar os obstáculos que impediam as \nmulheres de contribuir, em condições de igualdade com os \nhomens, com a sociedade brasileira. Para tanto, contrapõe o \nestado da educação das mulheres nas nações ditas civilizadas \ne cultas ao péssimo estado da educação, pública e privada, \nreligiosa e laica no Brasil, assumindo que a educação é uma \nexpressão do grau de civilização das nações e muito influente \nsobre sua moralidade. Meio século mais tarde, Émile Durkheim \ndedicou duas obras à educação escolar: Educação e \nSociologia e A Educação Moral. Nelas, o sociólogo francês \nconcebe a escola como um espaço de transmissão da \ncivilização às novas gerações por meio da sua socialização \nnos sentimentos, ideias e valores da sociedade, além da \npromoção da solidariedade com as múltiplas sociedades das \nquais participamos e com a humanidade como um todo. Ao \nfuncionar como uma forma de vinculação às normas sociais \npor meio de uma compreensão racional da moralidade que \nsubjaz a esses sentimentos, ideias e valores, a escola seria \ntambém um espaço de produção de autonomia. Mas, para que \nassim seja, esses sentimentos, ideias e valores deveriam ser \njustificáveis exclusivamente pela razão, sem invocar princípios \nreligiosos, que são exclusivistas. É correto afirmar que em seus \nescritos sobre educação, Durkheim e Floresta convergem ao",
+      "alternativas": {
+        "A": "reafirmar a importância dos valores religiosos da \nsociedade na educação como um projeto moralizante, \nainda que critiquem a educação católica.",
+        "B": "conceber a\n educação das mulheres como manifestação \nde uma lei necessária do progresso das nações, \nexpressão do positivismo dos autores.",
+        "C": "indicar a função da escola de integrar seus estudantes às \nnormas e valores morais característicos de uma sociedade \npara permitir que com ela contribuam.",
+        "D": "justificar uma educação escolar segregada de grupos \nmenos integrados socialmente, como as mulheres, em \nvirtude de normas e valores da sociedade.",
+        "E": "defender uma educação com caráter cívico e nacionalista, \nque afirme a superioridade da nação e promova as glórias \nda civilização nacional."
+      }
+    },
+    {
+      "question_id": 10,
+      "page_numbers": [
+        5
+      ],
+      "enunciado": "Capoeira, Maria Auxiliadora da Silva, técnica mista sobre tela, 69,5 x 75 x \n1,5 cm, 1970. Acervo MASP. \n \n“Maria Auxiliadora nasceu em 24 de maio de 1935, em \nCampo Belo, MG, numa família de 18 irmãos, gerados por \nDona Maria, uma humilde bordadora, que acumulava ainda as \nfunções de dona-de-casa, escultora e pintora. (...) Auxiliadora, \nainda criança, mostra uma inclinação natural para tingir os fios \nque a mãe borda para fora e, com 11 anos, já desenhava, com \ncarvão, figuras nos muros. Absorta nessa atividade, esquecia \nmuitas vezes de olhar as panelas no fogo, e a comida da \nfamília queimava. (...) Sem conhecer perspectiva ou claro-\nescuro, bem dentro dos princípios dos artistas autodidatas, \nAuxiliadora foi aprimorando sua arte. No fim dos anos 1960, \njuntou-se, com outros integrantes da família, como o escultor \nVicente de Paula e o pintor João Cândido, ao grupo que girava \nem torno do músico, teatrólogo e poeta negro Solano \nTrindade, no Embu das Artes, SP, onde se formara um centro \nde artesanato, principalmente de cultura e arte de origem \nafricana.” \nD'AMBROZIO, Oscar. Maria Auxiliadora. Um cometa das artes. \nAdaptado. \n \nA trajetória da artista autodidata Maria Auxiliadora da Silva \ndesafia as estruturas convencionais do sistema de artes \nvisuais no Brasil ao articular, em sua obra e atuação, \nexperiências de pertencimento, identidade e resistência. Em \ncrítica publicada no livro “Pensando a Arte”, Mário Schenberg \ndescreve sua produção como marcada pela \"vivência \nautêntica da vida popular\", \"senso mágico afro-brasileiro\" e \numa \"imaginação construtora de arquiteturas cromáticas e \nlineares\". Considerando a obra “Capoeira”, os comentários de \nSchenberg, o texto de Oscar D’Ambrozio e os debates \ncontemporâneos sobre arte e decolonialidade, é correto \nafirmar:",
+      "alternativas": {
+        "A": "A obra de Maria Auxiliadora é classificada como \"naïf\" \nou \n\"primitivista\" por apresentar um vocabulário visual simples \ne espontâneo, característico de artistas sem formação \nacadêmica, o que justifica sua exclusão dos grandes \ncircuitos institucionais da arte contemporânea.",
+        "B": "A produção de Maria Auxiliadora deve ser compreendida \ncomo uma manifestação isolada, desprovida de \nintencionalidade crítica ou diálogo com os debates \nsocioculturais e políticos do seu tempo, reforçando o lugar \nda arte popular como expressão puramente intuitiva.",
+        "C": "A visibilidade póstuma de Maria Auxiliadora nos museus e \nexposições de arte brasileira evidencia o reconhecimento \ninstitucional imediato e contínuo de artistas racializados e \nperiféricos no país, fruto da tradição inclusiva das artes \nvisuais brasileiras desde o século XX.",
+        "D": "A categorização da obra de Maria Auxiliadora como \n“primitivista” ou “ingênua” revela, muitas vezes, uma \nperspectiva colonizadora que desconsidera a \ncomplexidade estética, a intencionalidade política e a \npotência simbólica de sua produção, ligada a vivências \nnegras, femininas e periféricas que tensionam o cânone \neurocentrado da arte.",
+        "E": "A valorização da obra de Maria Auxiliadora por críticos \ncomo Mário Schenberg atesta a neutralidade das \ncategorias da crítica de arte moderna no Brasil, \ndemonstrando que critérios estéticos sempre foram \nsuficientes para reconhecer artistas não brancos e \nmulheres no campo artístico."
+      }
+    }
+  ]
+}

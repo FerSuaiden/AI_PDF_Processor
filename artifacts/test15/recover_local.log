@@ -1,0 +1,36 @@
+START_RECOVER_LOCAL
+ter 07 abr 2026 19:15:16 -03
+Stage3 local ilustracoes questao 5: 1 ilustracao(oes)
+Stage3 local ilustracoes questao 10: 2 ilustracao(oes)
+Stage3 local ilustracoes salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test15/stage3_local_ilustracoes.json
+stage3_local_illustrations_exit=0
+Stage3 local alts questao 5: OK
+Stage3 local alts salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test15/alternativas_visuais_local.json
+stage3_local_alts_exit=0
+Texto local salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test15/questoes_texto_local.json
+Questoes com texto extraidas: 10
+questions_text_local_exit=0
+Viewer data JS salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test15/viewer_data.js
+Viewer HTML copiado para: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test15/viewer_prova_estruturada.html
+Merge salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test15/prova_estruturada.json
+merge_exit=0
+artifacts/test15/alternativas_visuais_local.json
+artifacts/test15/alternativas_visuais_local/questao_05_alt_A.png
+artifacts/test15/alternativas_visuais_local/questao_05_alt_B.png
+artifacts/test15/alternativas_visuais_local/questao_05_alt_C.png
+artifacts/test15/alternativas_visuais_local/questao_05_alt_D.png
+artifacts/test15/alternativas_visuais_local/questao_05_alt_E.png
+artifacts/test15/ilustracoes_local/questao_05_ilustracao.png
+artifacts/test15/ilustracoes_local/questao_10_ilustracao_01.png
+artifacts/test15/ilustracoes_local/questao_10_ilustracao_02.png
+artifacts/test15/prova_estruturada.json
+artifacts/test15/questoes_texto_local.json
+artifacts/test15/recover_local.log
+artifacts/test15/run.log
+artifacts/test15/stage1_basico.json
+artifacts/test15/stage2_page_plan.json
+artifacts/test15/stage3_local_ilustracoes.json
+artifacts/test15/viewer_data.js
+artifacts/test15/viewer_prova_estruturada.html
+ter 07 abr 2026 19:15:27 -03
+END_RECOVER_LOCAL

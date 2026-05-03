@@ -1,0 +1,26 @@
+[pipeline] Stage1...
+Stage1 salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test16/stage1_basico.json
+[pipeline] Stage2...
+Stage2 pagina 2: OK
+Stage2 pagina 3: OK
+Stage2 pagina 4: OK
+Stage2 pagina 5: OK
+Stage2 salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test16/stage2_page_plan.json
+[pipeline] Texto local...
+Texto local salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test16/questoes_texto_local.json
+Questoes com texto extraidas: 10
+[pipeline] Stage3...
+Stage3 questao 5: 2 ilustracao(oes)
+[pipeline] Aviso: stage3 via Gemini falhou (Cota da Gemini excedida para esta chave/projeto. Verifique faturamento/limites e tente novamente depois.). Tentando fallback local de ilustracoes.
+Stage3 local ilustracoes questao 10: 2 ilustracao(oes)
+Stage3 local ilustracoes salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test16/stage3_ilustracoes.json
+[pipeline] Stage3 local alternatives...
+Stage3 local alts questao 5: OK
+Stage3 local alts salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test16/alternativas_visuais_local.json
+[pipeline] Merge...
+Viewer data JS salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test16/viewer_data.js
+Viewer HTML copiado para: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test16/viewer_prova_estruturada.html
+Merge salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test16/prova_estruturada.json
+[pipeline] Finalizado
+[pipeline] JSON final: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test16/prova_estruturada.json
+[pipeline] Viewer data: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test16/viewer_data.js

@@ -1,0 +1,1138 @@
+{
+  "created_at": "2026-04-10T13:05:10.218688+00:00",
+  "sources": {
+    "stage1": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/stage1_basico.json",
+    "stage2": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/stage2_page_plan.json",
+    "stage3": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/stage3_local_ilustracoes.json",
+    "questions_text_local": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/questoes_texto_local.json",
+    "visual_alternatives_local": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local.json"
+  },
+  "stage1": {
+    "stage": "stage1",
+    "model": "gemini-2.5-flash",
+    "created_at": "2026-04-08T23:15:01.162852+00:00",
+    "source_pdf": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/fuvest2026-fase1-prova-V1.pdf",
+    "page_scope": {
+      "start_page": 1,
+      "end_page": 5,
+      "total_pdf_pages": 38
+    },
+    "data": {
+      "shared_contexts": [
+        {
+          "context_id": "ctx_001",
+          "text_excerpt": "Pouco antes de eu completar quatro anos de idade, nasceu nossa irmã mais nova, para quem eu escolhera o nome de Maria Bethânia, por causa de uma bela valsa do compositor pernambucano Capiba. Naturalmente todos achavam graça no fato de eu saber cantar canções de gente grande, e mais ainda na minha determinação de nomear minha irmãzinha segundo uma dessas canções. Mas ninguém se sentia com coragem de realmente pôr esse nome \"tão pesado” num bebê. Como havia várias outras sugestões (iam de Cristina a Gislaine), meu pai resolveu escrever todos os nomes em pedacinhos de papel que, depois de dobrados, ele jogou na copa de meu pequeno chapéu de explorador e me deu para tirar na sorte. Saiu o da minha escolha. Meu pai então pôs um ar resignado (que era uma ordem para que todos também se resignassem) e disse: \"Pronto. Agora tem que ser Maria Bethânia\". E saiu para registrar a recém-nascida com esse nome. Recentemente, ouvi de minhas irmãs mais velhas uma versão que diz que meu pai escrevera Maria Bethânia em todos os papéis. Não é de todo improvável. E, de fato, na expressão resignada de meu pai era visível - ainda hoje o é, na lembrança – um intrigante toque de humor. Mas, embora me encha de orgulho o pensamento de que meu pai possa ter trapaceado para me agradar, eu sempre preferi crer na autenticidade do sorteio: essa intervenção do acaso parece conferir mais realidade a tudo o que veio a se passar desde então, pois ela faz crescerem ao mesmo tempo as magias (que nos dão a impressão de se excluírem mutuamente) do presságio e da unicidade absolutamente gratuita de cada acontecimento. Caetano Veloso. Verdade tropical. São Paulo: Companhia das Letras, 1997. Adaptado.",
+          "question_ids": [
+            1,
+            2
+          ],
+          "page_numbers": [
+            2
+          ],
+          "confidence": 0.0,
+          "full_text": "Texto para as questões 01 e 02 \n \nPouco antes de eu completar quatro anos de idade, \nnasceu nossa irmã mais nova, para quem eu escolhera o nome \nde Maria Bethânia, por causa de uma bela valsa do \ncompositor pernambucano Capiba. Naturalmente todos \nachavam graça no fato de eu saber cantar canções de gente \ngrande, e mais ainda na minha determinação de nomear \nminha irmãzinha segundo uma dessas canções. Mas \nninguém se sentia com coragem de realmente pôr esse nome \n“tão pesado” num bebê. Como havia várias outras sugestões \n(iam de Cristina a Gislaine), meu pai resolveu escrever todos \nos nomes em pedacinhos de papel que, depois de dobrados, \nele jogou na copa de meu pequeno chapéu de explorador e \nme deu para tirar na sorte. Saiu o da minha escolha. Meu pai \nentão pôs um ar resignado (que era uma ordem para que \ntodos também se resignassem) e disse: “Pronto. Agora tem \nque ser Maria Bethânia”. E saiu para registrar a recém-nascida \ncom esse nome. Recentemente, ouvi de minhas irmãs mais \nvelhas uma versão que diz que meu pai escrevera Maria \nBethânia em todos os papéis. Não é de todo improvável. E, de \nfato, na expressão resignada de meu pai era visível – ainda \nhoje o é, na lembrança – um intrigante toque de humor. Mas, \nembora me encha de orgulho o pensamento de que meu pai \npossa ter trapaceado para me agradar, eu sempre preferi crer \nna autenticidade do sorteio: essa intervenção do acaso \nparece conferir mais realidade a tudo o que veio a se passar \ndesde então, pois ela faz crescerem ao mesmo tempo as \nmagias (que nos dão a impressão de se excluírem \nmutuamente) do presságio e da unicidade absolutamente \ngratuita de cada acontecimento. \nCaetano Veloso. Verdade tropical. São Paulo: Companhia das Letras, \n1997. Adaptado."
+        }
+      ],
+      "questions_with_image_or_table_alternatives": [
+        5
+      ],
+      "wide_visuals": [
+        {
+          "page_number": 3,
+          "description": "Diagrama de ligações químicas",
+          "related_question_ids": [
+            5
+          ],
+          "spans_multiple_columns": true,
+          "confidence": 0.0
+        },
+        {
+          "page_number": 5,
+          "description": "Pintura 'Capoeira' de Maria Auxiliadora da Silva",
+          "related_question_ids": [
+            10
+          ],
+          "spans_multiple_columns": true,
+          "confidence": 0.0
+        }
+      ],
+      "question_hints": [
+        {
+          "question_id": 1,
+          "probable_page": 2,
+          "has_shared_context": true,
+          "has_visual_alternatives": false,
+          "has_wide_visual": false
+        },
+        {
+          "question_id": 2,
+          "probable_page": 2,
+          "has_shared_context": true,
+          "has_visual_alternatives": false,
+          "has_wide_visual": false
+        },
+        {
+          "question_id": 3,
+          "probable_page": 2,
+          "has_shared_context": false,
+          "has_visual_alternatives": false,
+          "has_wide_visual": false
+        },
+        {
+          "question_id": 4,
+          "probable_page": 3,
+          "has_shared_context": false,
+          "has_visual_alternatives": false,
+          "has_wide_visual": false
+        },
+        {
+          "question_id": 5,
+          "probable_page": 3,
+          "has_shared_context": false,
+          "has_visual_alternatives": true,
+          "has_wide_visual": true
+        },
+        {
+          "question_id": 6,
+          "probable_page": 4,
+          "has_shared_context": false,
+          "has_visual_alternatives": false,
+          "has_wide_visual": false
+        },
+        {
+          "question_id": 7,
+          "probable_page": 4,
+          "has_shared_context": false,
+          "has_visual_alternatives": false,
+          "has_wide_visual": false
+        },
+        {
+          "question_id": 8,
+          "probable_page": 4,
+          "has_shared_context": false,
+          "has_visual_alternatives": false,
+          "has_wide_visual": false
+        },
+        {
+          "question_id": 9,
+          "probable_page": 5,
+          "has_shared_context": false,
+          "has_visual_alternatives": false,
+          "has_wide_visual": false
+        },
+        {
+          "question_id": 10,
+          "probable_page": 5,
+          "has_shared_context": false,
+          "has_visual_alternatives": false,
+          "has_wide_visual": true
+        }
+      ],
+      "latex_fragments": [
+        {
+          "snippet_latex": "E = - \\sum P_i(x) \\log_2 P_i(x)",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "E = - \\left(\\frac{1}{2} \\log_2 \\frac{1}{2} + \\frac{1}{2} \\log_2 \\frac{1}{2}\\right) = 1",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "E = - \\left(\\frac{1}{4} \\log_2 \\frac{1}{4} + \\frac{1}{4} \\log_2 \\frac{1}{4} + \\frac{1}{4} \\log_2 \\frac{1}{4} + \\frac{1}{4} \\log_2 \\frac{1}{4}\\right) = 2",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "5 - 2\\log_2 3",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\frac{1}{2} - \\log_2 3",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\frac{3}{2}",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "2\\log_2 3",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\sin \\frac{\\pi}{2} + \\sin x = \\sin (2x) - \\cos \\pi",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "1 + \\sin x = \\sin (2x) + 1",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\sin x = \\sin (2x)",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\sin x = 2\\sin x",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "2\\sin x - \\sin x = 0",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\sin x = 0",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "x = 0 \\text{ ou } x = \\pi",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\cos \\pi \\text{ vale } 1",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\sin \\frac{\\pi}{2} \\text{ vale } 1",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        }
+      ]
+    }
+  },
+  "stage2": {
+    "stage": "stage2",
+    "model": "gemini-2.5-flash",
+    "created_at": "2026-04-06T16:06:59.252447+00:00",
+    "source_pdf": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/fuvest2026-fase1-prova-V1.pdf",
+    "source_stage1": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/stage1_basico.json",
+    "pages": [
+      {
+        "page_number": 3,
+        "layout_mode": "full_page",
+        "reason": "Conteúdo visual cruza colunas",
+        "segments": [
+          {
+            "segment_id": "p003_f",
+            "bbox": [
+              50,
+              50,
+              830,
+              950
+            ],
+            "question_ids": [
+              4,
+              5
+            ],
+            "notes": "Página inteira devido a imagem que cruza as colunas para a questão 5."
+          }
+        ]
+      },
+      {
+        "page_number": 5,
+        "layout_mode": "full_page",
+        "reason": "Imagem 'Capoeira' da Questão 10 abrange múltiplas colunas.",
+        "segments": [
+          {
+            "segment_id": "p005_full",
+            "bbox": [
+              60,
+              40,
+              960,
+              960
+            ],
+            "question_ids": [
+              9,
+              10
+            ],
+            "notes": "Página inteira devido à imagem que cruza as colunas."
+          }
+        ]
+      }
+    ]
+  },
+  "stage3": {
+    "stage": "stage3_local_illustrations",
+    "created_at": "2026-04-10T13:05:06.882107+00:00",
+    "question_images_dir": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/banco_imagens_fuvest_final",
+    "output_dir": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local",
+    "max_regions": 3,
+    "source_stage2": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/stage2_page_plan.json",
+    "source_stage1": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/stage1_basico.json",
+    "filtered_question_ids": [
+      4,
+      5,
+      9,
+      10
+    ],
+    "question_ids_with_visual_alternatives": [
+      5
+    ],
+    "items": [
+      {
+        "question_id": 5,
+        "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/banco_imagens_fuvest_final/questao_05.png",
+        "regions": [
+          {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_05_ilustracao.png",
+            "bbox_pixels": [
+              201,
+              621,
+              999,
+              1018
+            ],
+            "bbox_norm_0_1000": [
+              176,
+              161,
+              290,
+              804
+            ],
+            "visual_type": "local_detected",
+            "confidence": null,
+            "rank": 1
+          }
+        ],
+        "detection_mode": "local_connected_components",
+        "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_05_ilustracao.png",
+        "bbox_norm_0_1000": [
+          176,
+          161,
+          290,
+          804
+        ],
+        "bbox_pixels": [
+          201,
+          621,
+          999,
+          1018
+        ],
+        "visual_type": "local_detected",
+        "confidence": null
+      },
+      {
+        "question_id": 10,
+        "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/banco_imagens_fuvest_final/questao_10.png",
+        "regions": [
+          {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_10_ilustracao_01.png",
+            "bbox_pixels": [
+              87,
+              2267,
+              1240,
+              3067
+            ],
+            "bbox_norm_0_1000": [
+              646,
+              70,
+              874,
+              1000
+            ],
+            "visual_type": "local_detected",
+            "confidence": null,
+            "rank": 1
+          },
+          {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_10_ilustracao_02.png",
+            "bbox_pixels": [
+              87,
+              1116,
+              1240,
+              1470
+            ],
+            "bbox_norm_0_1000": [
+              318,
+              70,
+              418,
+              1000
+            ],
+            "visual_type": "local_detected",
+            "confidence": null,
+            "rank": 2
+          }
+        ],
+        "detection_mode": "local_connected_components",
+        "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_10_ilustracao_01.png",
+        "bbox_norm_0_1000": [
+          646,
+          70,
+          874,
+          1000
+        ],
+        "bbox_pixels": [
+          87,
+          2267,
+          1240,
+          3067
+        ],
+        "visual_type": "local_detected",
+        "confidence": null
+      }
+    ]
+  },
+  "questions_text_local": {
+    "source_pdf": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/fuvest2026-fase1-prova-V1.pdf",
+    "source_stage2": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/stage2_page_plan.json",
+    "page_range": {
+      "start_page": 3,
+      "end_page": 5
+    },
+    "questions": [
+      {
+        "question_id": 4,
+        "page_numbers": [
+          3
+        ],
+        "enunciado": "O conceito de entropia permeia diversas áreas do \nconhecimento e foi introduzido na Teoria da Informação por \nClaude Shannon, que desenvolveu uma forma de calcular a \nentropia 𝐸 de um sistema, a saber \n \n𝐸 = −෍𝑃 ௜ሺ𝑥ሻlogଶ𝑃௜(𝑥)\n௜\n \n \nem que 𝑃௜(𝑥) é a probabilidade do i-ésimo resultado para a \nvariável 𝑥. \nPor exemplo, considere uma sequência com duas letras A \ncoloridas, a primeira azul e a segunda vermelha (AA). Se \nessas duas letras fossem colocadas numa urna, a \nprobabilidade de se retirar, sem observar, a letra azul, como \nna sequência original, é \nଵ\nଶ. Devolve-se a letra à urna e sorteia-\nse novamente. A probabilidade de sair vermelha é novamente \nଵ\nଶ, e nesse caso tem-se: \n \n𝐸 = −෍𝑃 ௜(𝑥) logଶ𝑃௜(𝑥)\n௜\n= −൬1\n2 logଶ\n1\n2\n+ 𝟏\n𝟐 𝐥𝐨𝐠𝟐\n𝟏\n𝟐\n ൰=1 \n \nPara uma sequência com 4 letras A, as duas primeiras azuis e \nas duas últimas vermelhas (AAAA), colocando-as numa urna \ne sorteando uma, a probabilidade de sair azul é \nଵ\nଶ. Devolve-se \na letra e sorteia-se novamente. A probabilidade da segunda \nletra sorteada ser azul, como na sequência original, é \nnovamente \nଵ\nଶ. Procedendo dessa forma para as duas letras \nvermelhas, tem-se: \n \n𝐸 = −෍𝑃 ௜(𝑥) logଶ𝑃௜(𝑥)\n௜\n \n= −൬1\n2 logଶ\n1\n2\n+ 1\n2 logଶ\n1\n2\n+ 𝟏\n𝟐 𝐥𝐨𝐠𝟐\n𝟏\n𝟐\n + 𝟏\n𝟐 𝐥𝐨𝐠𝟐\n𝟏\n𝟐\n ൰=2 \n \nCom base nessas informações, qual o valor da entropia 𝐸 , no \ncaso de uma sequência com 4 letras A, sendo as 3 primeiras \nazuis e a última vermelha (AAAA)?",
+        "alternativas": {
+          "A": "5 −\nଽ\nସlogଶ3",
+          "B": "ଵ\nଶ−\nହ\nଶ\nlogଶ3",
+          "C": "ଷ\nଶ",
+          "D": "ଽ\nସlogଶ3",
+          "E": "3"
+        }
+      },
+      {
+        "question_id": 5,
+        "page_numbers": [
+          3
+        ],
+        "enunciado": "A difusão de descobertas científicas complexas em \nlinguagens mais acessíveis e lúdicas é uma forma de expor a \nimportância da ciência. Um recente trabalho da Universidade \nde Würzburg, na Alemanha, que descreveu uma nova ligação \ntripla entre átomos de B (Boro) e C (Carbono), foi apresentado \ncomo se os autores estivessem jogando uma espécie de \n“bingo das ligações químicas”, conforme a figura a seguir: \n \n \n \n“No bingo das ligações químicas, os pesquisadores \nconseguiram completar a lacuna entre o Boro e o Carbono.” \n \nDisponível em https://www.tecmundo.com.br/ciencia/. Adaptado. \n \nAdaptando essa ideia, foi feito um jogo para identificar os tipos \nde ligações entre os elementos Na, K, Ca, C,, Br e I. Assinale \na alternativa que representa a melhor marcação do tipo de \nligação formada por esses átomos, seguindo a legenda: \n \n – ligação iônica; \n – ligação covalente; \nΔ – ligação metálica.",
+        "alternativas": {
+          "A": "respeitar as variações linguísticas dos alunos, mas solicitar \nque eles utilizem a norma culta no ambiente escolar.",
+          "D": "mostrar aos alunos que eles podem cometer erros em \nrelação ao uso de verbos, mas que isso pode ser \nprejudicial à ascensão social.",
+          "B": "incentivar o uso das variações regionais dos alunos, mas \nmostrar a eles que a escola recebe variantes de forma \npreconceituosa.",
+          "E": "ensinar aos alunos a norma padrão da língua, mas permitir \nque eles cometam erros para não serem excluídos pela \nsociedade.",
+          "C": "respeitar as particularidades\n linguísticas dos alunos, mas \ndar a eles condições de aprender outras variantes."
+        }
+      },
+      {
+        "question_id": 9,
+        "page_numbers": [
+          5
+        ],
+        "enunciado": "Em meados do século XIX, Nísia Floresta publicou no Brasil \nseu Opúsculo Humanitário, uma ardente defesa da educação \ncomo meio para eliminar os obstáculos que impediam as \nmulheres de contribuir, em condições de igualdade com os \nhomens, com a sociedade brasileira. Para tanto, contrapõe o \nestado da educação das mulheres nas nações ditas civilizadas \ne cultas ao péssimo estado da educação, pública e privada, \nreligiosa e laica no Brasil, assumindo que a educação é uma \nexpressão do grau de civilização das nações e muito influente \nsobre sua moralidade. Meio século mais tarde, Émile Durkheim \ndedicou duas obras à educação escolar: Educação e \nSociologia e A Educação Moral. Nelas, o sociólogo francês \nconcebe a escola como um espaço de transmissão da \ncivilização às novas gerações por meio da sua socialização \nnos sentimentos, ideias e valores da sociedade, além da \npromoção da solidariedade com as múltiplas sociedades das \nquais participamos e com a humanidade como um todo. Ao \nfuncionar como uma forma de vinculação às normas sociais \npor meio de uma compreensão racional da moralidade que \nsubjaz a esses sentimentos, ideias e valores, a escola seria \ntambém um espaço de produção de autonomia. Mas, para que \nassim seja, esses sentimentos, ideias e valores deveriam ser \njustificáveis exclusivamente pela razão, sem invocar princípios \nreligiosos, que são exclusivistas. É correto afirmar que em seus \nescritos sobre educação, Durkheim e Floresta convergem ao",
+        "alternativas": {
+          "A": "reafirmar a importância dos valores religiosos da \nsociedade na educação como um projeto moralizante, \nainda que critiquem a educação católica.",
+          "B": "conceber a\n educação das mulheres como manifestação \nde uma lei necessária do progresso das nações, \nexpressão do positivismo dos autores.",
+          "C": "indicar a função da escola de integrar seus estudantes às \nnormas e valores morais característicos de uma sociedade \npara permitir que com ela contribuam.",
+          "D": "justificar uma educação escolar segregada de grupos \nmenos integrados socialmente, como as mulheres, em \nvirtude de normas e valores da sociedade.",
+          "E": "defender uma educação com caráter cívico e nacionalista, \nque afirme a superioridade da nação e promova as glórias \nda civilização nacional."
+        }
+      },
+      {
+        "question_id": 10,
+        "page_numbers": [
+          5
+        ],
+        "enunciado": "Capoeira, Maria Auxiliadora da Silva, técnica mista sobre tela, 69,5 x 75 x \n1,5 cm, 1970. Acervo MASP. \n \n“Maria Auxiliadora nasceu em 24 de maio de 1935, em \nCampo Belo, MG, numa família de 18 irmãos, gerados por \nDona Maria, uma humilde bordadora, que acumulava ainda as \nfunções de dona-de-casa, escultora e pintora. (...) Auxiliadora, \nainda criança, mostra uma inclinação natural para tingir os fios \nque a mãe borda para fora e, com 11 anos, já desenhava, com \ncarvão, figuras nos muros. Absorta nessa atividade, esquecia \nmuitas vezes de olhar as panelas no fogo, e a comida da \nfamília queimava. (...) Sem conhecer perspectiva ou claro-\nescuro, bem dentro dos princípios dos artistas autodidatas, \nAuxiliadora foi aprimorando sua arte. No fim dos anos 1960, \njuntou-se, com outros integrantes da família, como o escultor \nVicente de Paula e o pintor João Cândido, ao grupo que girava \nem torno do músico, teatrólogo e poeta negro Solano \nTrindade, no Embu das Artes, SP, onde se formara um centro \nde artesanato, principalmente de cultura e arte de origem \nafricana.” \nD'AMBROZIO, Oscar. Maria Auxiliadora. Um cometa das artes. \nAdaptado. \n \nA trajetória da artista autodidata Maria Auxiliadora da Silva \ndesafia as estruturas convencionais do sistema de artes \nvisuais no Brasil ao articular, em sua obra e atuação, \nexperiências de pertencimento, identidade e resistência. Em \ncrítica publicada no livro “Pensando a Arte”, Mário Schenberg \ndescreve sua produção como marcada pela \"vivência \nautêntica da vida popular\", \"senso mágico afro-brasileiro\" e \numa \"imaginação construtora de arquiteturas cromáticas e \nlineares\". Considerando a obra “Capoeira”, os comentários de \nSchenberg, o texto de Oscar D’Ambrozio e os debates \ncontemporâneos sobre arte e decolonialidade, é correto \nafirmar:",
+        "alternativas": {
+          "A": "A obra de Maria Auxiliadora é classificada como \"naïf\" \nou \n\"primitivista\" por apresentar um vocabulário visual simples \ne espontâneo, característico de artistas sem formação \nacadêmica, o que justifica sua exclusão dos grandes \ncircuitos institucionais da arte contemporânea.",
+          "B": "A produção de Maria Auxiliadora deve ser compreendida \ncomo uma manifestação isolada, desprovida de \nintencionalidade crítica ou diálogo com os debates \nsocioculturais e políticos do seu tempo, reforçando o lugar \nda arte popular como expressão puramente intuitiva.",
+          "C": "A visibilidade póstuma de Maria Auxiliadora nos museus e \nexposições de arte brasileira evidencia o reconhecimento \ninstitucional imediato e contínuo de artistas racializados e \nperiféricos no país, fruto da tradição inclusiva das artes \nvisuais brasileiras desde o século XX.",
+          "D": "A categorização da obra de Maria Auxiliadora como \n“primitivista” ou “ingênua” revela, muitas vezes, uma \nperspectiva colonizadora que desconsidera a \ncomplexidade estética, a intencionalidade política e a \npotência simbólica de sua produção, ligada a vivências \nnegras, femininas e periféricas que tensionam o cânone \neurocentrado da arte.",
+          "E": "A valorização da obra de Maria Auxiliadora por críticos \ncomo Mário Schenberg atesta a neutralidade das \ncategorias da crítica de arte moderna no Brasil, \ndemonstrando que critérios estéticos sempre foram \nsuficientes para reconhecer artistas não brancos e \nmulheres no campo artístico."
+        }
+      }
+    ]
+  },
+  "visual_alternatives_local": {
+    "stage": "stage3_local_alternatives",
+    "created_at": "2026-04-10T13:05:09.000242+00:00",
+    "source_stage1": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/stage1_basico.json",
+    "source_question_images_dir": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/banco_imagens_fuvest_final",
+    "output_dir": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local",
+    "items": [
+      {
+        "question_id": 5,
+        "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/banco_imagens_fuvest_final/questao_05.png",
+        "mode": "grid_2x3_lower",
+        "alternatives": {
+          "A": {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local/questao_05_alt_A.png",
+            "bbox_pixels": [
+              151,
+              1630,
+              559,
+              2065
+            ],
+            "bbox_norm_0_1000": [
+              464,
+              121,
+              588,
+              450
+            ]
+          },
+          "B": {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local/questao_05_alt_B.png",
+            "bbox_pixels": [
+              151,
+              2056,
+              561,
+              2491
+            ],
+            "bbox_norm_0_1000": [
+              585,
+              121,
+              709,
+              452
+            ]
+          },
+          "C": {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local/questao_05_alt_C.png",
+            "bbox_pixels": [
+              119,
+              2482,
+              562,
+              2918
+            ],
+            "bbox_norm_0_1000": [
+              707,
+              95,
+              831,
+              452
+            ]
+          },
+          "D": {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local/questao_05_alt_D.png",
+            "bbox_pixels": [
+              634,
+              1630,
+              1077,
+              2065
+            ],
+            "bbox_norm_0_1000": [
+              464,
+              510,
+              588,
+              867
+            ]
+          },
+          "E": {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local/questao_05_alt_E.png",
+            "bbox_pixels": [
+              634,
+              2056,
+              1077,
+              2491
+            ],
+            "bbox_norm_0_1000": [
+              585,
+              510,
+              709,
+              867
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "structured_questions": [
+    {
+      "question_id": 1,
+      "shared_contexts": [
+        {
+          "context_id": "ctx_001",
+          "text_excerpt": "Pouco antes de eu completar quatro anos de idade, nasceu nossa irmã mais nova, para quem eu escolhera o nome de Maria Bethânia, por causa de uma bela valsa do compositor pernambucano Capiba. Naturalmente todos achavam graça no fato de eu saber cantar canções de gente grande, e mais ainda na minha determinação de nomear minha irmãzinha segundo uma dessas canções. Mas ninguém se sentia com coragem de realmente pôr esse nome \"tão pesado” num bebê. Como havia várias outras sugestões (iam de Cristina a Gislaine), meu pai resolveu escrever todos os nomes em pedacinhos de papel que, depois de dobrados, ele jogou na copa de meu pequeno chapéu de explorador e me deu para tirar na sorte. Saiu o da minha escolha. Meu pai então pôs um ar resignado (que era uma ordem para que todos também se resignassem) e disse: \"Pronto. Agora tem que ser Maria Bethânia\". E saiu para registrar a recém-nascida com esse nome. Recentemente, ouvi de minhas irmãs mais velhas uma versão que diz que meu pai escrevera Maria Bethânia em todos os papéis. Não é de todo improvável. E, de fato, na expressão resignada de meu pai era visível - ainda hoje o é, na lembrança – um intrigante toque de humor. Mas, embora me encha de orgulho o pensamento de que meu pai possa ter trapaceado para me agradar, eu sempre preferi crer na autenticidade do sorteio: essa intervenção do acaso parece conferir mais realidade a tudo o que veio a se passar desde então, pois ela faz crescerem ao mesmo tempo as magias (que nos dão a impressão de se excluírem mutuamente) do presságio e da unicidade absolutamente gratuita de cada acontecimento. Caetano Veloso. Verdade tropical. São Paulo: Companhia das Letras, 1997. Adaptado.",
+          "question_ids": [
+            1,
+            2
+          ],
+          "page_numbers": [
+            2
+          ],
+          "confidence": 0.0,
+          "full_text": "Texto para as questões 01 e 02 \n \nPouco antes de eu completar quatro anos de idade, \nnasceu nossa irmã mais nova, para quem eu escolhera o nome \nde Maria Bethânia, por causa de uma bela valsa do \ncompositor pernambucano Capiba. Naturalmente todos \nachavam graça no fato de eu saber cantar canções de gente \ngrande, e mais ainda na minha determinação de nomear \nminha irmãzinha segundo uma dessas canções. Mas \nninguém se sentia com coragem de realmente pôr esse nome \n“tão pesado” num bebê. Como havia várias outras sugestões \n(iam de Cristina a Gislaine), meu pai resolveu escrever todos \nos nomes em pedacinhos de papel que, depois de dobrados, \nele jogou na copa de meu pequeno chapéu de explorador e \nme deu para tirar na sorte. Saiu o da minha escolha. Meu pai \nentão pôs um ar resignado (que era uma ordem para que \ntodos também se resignassem) e disse: “Pronto. Agora tem \nque ser Maria Bethânia”. E saiu para registrar a recém-nascida \ncom esse nome. Recentemente, ouvi de minhas irmãs mais \nvelhas uma versão que diz que meu pai escrevera Maria \nBethânia em todos os papéis. Não é de todo improvável. E, de \nfato, na expressão resignada de meu pai era visível – ainda \nhoje o é, na lembrança – um intrigante toque de humor. Mas, \nembora me encha de orgulho o pensamento de que meu pai \npossa ter trapaceado para me agradar, eu sempre preferi crer \nna autenticidade do sorteio: essa intervenção do acaso \nparece conferir mais realidade a tudo o que veio a se passar \ndesde então, pois ela faz crescerem ao mesmo tempo as \nmagias (que nos dão a impressão de se excluírem \nmutuamente) do presságio e da unicidade absolutamente \ngratuita de cada acontecimento. \nCaetano Veloso. Verdade tropical. São Paulo: Companhia das Letras, \n1997. Adaptado."
+        }
+      ],
+      "latex_fragments": [],
+      "illustration": null,
+      "illustrations": [],
+      "visual_alternatives": null
+    },
+    {
+      "question_id": 2,
+      "shared_contexts": [
+        {
+          "context_id": "ctx_001",
+          "text_excerpt": "Pouco antes de eu completar quatro anos de idade, nasceu nossa irmã mais nova, para quem eu escolhera o nome de Maria Bethânia, por causa de uma bela valsa do compositor pernambucano Capiba. Naturalmente todos achavam graça no fato de eu saber cantar canções de gente grande, e mais ainda na minha determinação de nomear minha irmãzinha segundo uma dessas canções. Mas ninguém se sentia com coragem de realmente pôr esse nome \"tão pesado” num bebê. Como havia várias outras sugestões (iam de Cristina a Gislaine), meu pai resolveu escrever todos os nomes em pedacinhos de papel que, depois de dobrados, ele jogou na copa de meu pequeno chapéu de explorador e me deu para tirar na sorte. Saiu o da minha escolha. Meu pai então pôs um ar resignado (que era uma ordem para que todos também se resignassem) e disse: \"Pronto. Agora tem que ser Maria Bethânia\". E saiu para registrar a recém-nascida com esse nome. Recentemente, ouvi de minhas irmãs mais velhas uma versão que diz que meu pai escrevera Maria Bethânia em todos os papéis. Não é de todo improvável. E, de fato, na expressão resignada de meu pai era visível - ainda hoje o é, na lembrança – um intrigante toque de humor. Mas, embora me encha de orgulho o pensamento de que meu pai possa ter trapaceado para me agradar, eu sempre preferi crer na autenticidade do sorteio: essa intervenção do acaso parece conferir mais realidade a tudo o que veio a se passar desde então, pois ela faz crescerem ao mesmo tempo as magias (que nos dão a impressão de se excluírem mutuamente) do presságio e da unicidade absolutamente gratuita de cada acontecimento. Caetano Veloso. Verdade tropical. São Paulo: Companhia das Letras, 1997. Adaptado.",
+          "question_ids": [
+            1,
+            2
+          ],
+          "page_numbers": [
+            2
+          ],
+          "confidence": 0.0,
+          "full_text": "Texto para as questões 01 e 02 \n \nPouco antes de eu completar quatro anos de idade, \nnasceu nossa irmã mais nova, para quem eu escolhera o nome \nde Maria Bethânia, por causa de uma bela valsa do \ncompositor pernambucano Capiba. Naturalmente todos \nachavam graça no fato de eu saber cantar canções de gente \ngrande, e mais ainda na minha determinação de nomear \nminha irmãzinha segundo uma dessas canções. Mas \nninguém se sentia com coragem de realmente pôr esse nome \n“tão pesado” num bebê. Como havia várias outras sugestões \n(iam de Cristina a Gislaine), meu pai resolveu escrever todos \nos nomes em pedacinhos de papel que, depois de dobrados, \nele jogou na copa de meu pequeno chapéu de explorador e \nme deu para tirar na sorte. Saiu o da minha escolha. Meu pai \nentão pôs um ar resignado (que era uma ordem para que \ntodos também se resignassem) e disse: “Pronto. Agora tem \nque ser Maria Bethânia”. E saiu para registrar a recém-nascida \ncom esse nome. Recentemente, ouvi de minhas irmãs mais \nvelhas uma versão que diz que meu pai escrevera Maria \nBethânia em todos os papéis. Não é de todo improvável. E, de \nfato, na expressão resignada de meu pai era visível – ainda \nhoje o é, na lembrança – um intrigante toque de humor. Mas, \nembora me encha de orgulho o pensamento de que meu pai \npossa ter trapaceado para me agradar, eu sempre preferi crer \nna autenticidade do sorteio: essa intervenção do acaso \nparece conferir mais realidade a tudo o que veio a se passar \ndesde então, pois ela faz crescerem ao mesmo tempo as \nmagias (que nos dão a impressão de se excluírem \nmutuamente) do presságio e da unicidade absolutamente \ngratuita de cada acontecimento. \nCaetano Veloso. Verdade tropical. São Paulo: Companhia das Letras, \n1997. Adaptado."
+        }
+      ],
+      "latex_fragments": [],
+      "illustration": null,
+      "illustrations": [],
+      "visual_alternatives": null
+    },
+    {
+      "question_id": 4,
+      "shared_contexts": [],
+      "latex_fragments": [
+        {
+          "snippet_latex": "E = - \\sum P_i(x) \\log_2 P_i(x)",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "E = - \\left(\\frac{1}{2} \\log_2 \\frac{1}{2} + \\frac{1}{2} \\log_2 \\frac{1}{2}\\right) = 1",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "E = - \\left(\\frac{1}{4} \\log_2 \\frac{1}{4} + \\frac{1}{4} \\log_2 \\frac{1}{4} + \\frac{1}{4} \\log_2 \\frac{1}{4} + \\frac{1}{4} \\log_2 \\frac{1}{4}\\right) = 2",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "5 - 2\\log_2 3",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\frac{1}{2} - \\log_2 3",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\frac{3}{2}",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "2\\log_2 3",
+          "related_question_ids": [
+            4
+          ],
+          "page_numbers": [
+            3
+          ],
+          "confidence": 0.0
+        }
+      ],
+      "illustration": null,
+      "illustrations": [],
+      "visual_alternatives": null
+    },
+    {
+      "question_id": 5,
+      "shared_contexts": [],
+      "latex_fragments": [],
+      "illustration": {
+        "question_id": 5,
+        "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/banco_imagens_fuvest_final/questao_05.png",
+        "regions": [
+          {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_05_ilustracao.png",
+            "bbox_pixels": [
+              201,
+              621,
+              999,
+              1018
+            ],
+            "bbox_norm_0_1000": [
+              176,
+              161,
+              290,
+              804
+            ],
+            "visual_type": "local_detected",
+            "confidence": null,
+            "rank": 1
+          }
+        ],
+        "detection_mode": "local_connected_components",
+        "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_05_ilustracao.png",
+        "bbox_norm_0_1000": [
+          176,
+          161,
+          290,
+          804
+        ],
+        "bbox_pixels": [
+          201,
+          621,
+          999,
+          1018
+        ],
+        "visual_type": "local_detected",
+        "confidence": null
+      },
+      "illustrations": [
+        {
+          "question_id": 5,
+          "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/banco_imagens_fuvest_final/questao_05.png",
+          "regions": [
+            {
+              "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_05_ilustracao.png",
+              "bbox_pixels": [
+                201,
+                621,
+                999,
+                1018
+              ],
+              "bbox_norm_0_1000": [
+                176,
+                161,
+                290,
+                804
+              ],
+              "visual_type": "local_detected",
+              "confidence": null,
+              "rank": 1
+            }
+          ],
+          "detection_mode": "local_connected_components",
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_05_ilustracao.png",
+          "bbox_norm_0_1000": [
+            176,
+            161,
+            290,
+            804
+          ],
+          "bbox_pixels": [
+            201,
+            621,
+            999,
+            1018
+          ],
+          "visual_type": "local_detected",
+          "confidence": null
+        }
+      ],
+      "visual_alternatives": {
+        "question_id": 5,
+        "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/banco_imagens_fuvest_final/questao_05.png",
+        "mode": "grid_2x3_lower",
+        "alternatives": {
+          "A": {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local/questao_05_alt_A.png",
+            "bbox_pixels": [
+              151,
+              1630,
+              559,
+              2065
+            ],
+            "bbox_norm_0_1000": [
+              464,
+              121,
+              588,
+              450
+            ]
+          },
+          "B": {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local/questao_05_alt_B.png",
+            "bbox_pixels": [
+              151,
+              2056,
+              561,
+              2491
+            ],
+            "bbox_norm_0_1000": [
+              585,
+              121,
+              709,
+              452
+            ]
+          },
+          "C": {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local/questao_05_alt_C.png",
+            "bbox_pixels": [
+              119,
+              2482,
+              562,
+              2918
+            ],
+            "bbox_norm_0_1000": [
+              707,
+              95,
+              831,
+              452
+            ]
+          },
+          "D": {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local/questao_05_alt_D.png",
+            "bbox_pixels": [
+              634,
+              1630,
+              1077,
+              2065
+            ],
+            "bbox_norm_0_1000": [
+              464,
+              510,
+              588,
+              867
+            ]
+          },
+          "E": {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/alternativas_visuais_local/questao_05_alt_E.png",
+            "bbox_pixels": [
+              634,
+              2056,
+              1077,
+              2491
+            ],
+            "bbox_norm_0_1000": [
+              585,
+              510,
+              709,
+              867
+            ]
+          }
+        }
+      }
+    },
+    {
+      "question_id": 7,
+      "shared_contexts": [],
+      "latex_fragments": [
+        {
+          "snippet_latex": "\\sin \\frac{\\pi}{2} + \\sin x = \\sin (2x) - \\cos \\pi",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "1 + \\sin x = \\sin (2x) + 1",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\sin x = \\sin (2x)",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\sin x = 2\\sin x",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "2\\sin x - \\sin x = 0",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\sin x = 0",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "x = 0 \\text{ ou } x = \\pi",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\cos \\pi \\text{ vale } 1",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        },
+        {
+          "snippet_latex": "\\sin \\frac{\\pi}{2} \\text{ vale } 1",
+          "related_question_ids": [
+            7
+          ],
+          "page_numbers": [
+            4
+          ],
+          "confidence": 0.0
+        }
+      ],
+      "illustration": null,
+      "illustrations": [],
+      "visual_alternatives": null
+    },
+    {
+      "question_id": 10,
+      "shared_contexts": [],
+      "latex_fragments": [],
+      "illustration": {
+        "question_id": 10,
+        "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/banco_imagens_fuvest_final/questao_10.png",
+        "regions": [
+          {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_10_ilustracao_01.png",
+            "bbox_pixels": [
+              87,
+              2267,
+              1240,
+              3067
+            ],
+            "bbox_norm_0_1000": [
+              646,
+              70,
+              874,
+              1000
+            ],
+            "visual_type": "local_detected",
+            "confidence": null,
+            "rank": 1
+          },
+          {
+            "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_10_ilustracao_02.png",
+            "bbox_pixels": [
+              87,
+              1116,
+              1240,
+              1470
+            ],
+            "bbox_norm_0_1000": [
+              318,
+              70,
+              418,
+              1000
+            ],
+            "visual_type": "local_detected",
+            "confidence": null,
+            "rank": 2
+          }
+        ],
+        "detection_mode": "local_connected_components",
+        "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_10_ilustracao_01.png",
+        "bbox_norm_0_1000": [
+          646,
+          70,
+          874,
+          1000
+        ],
+        "bbox_pixels": [
+          87,
+          2267,
+          1240,
+          3067
+        ],
+        "visual_type": "local_detected",
+        "confidence": null
+      },
+      "illustrations": [
+        {
+          "question_id": 10,
+          "input_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/banco_imagens_fuvest_final/questao_10.png",
+          "regions": [
+            {
+              "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_10_ilustracao_01.png",
+              "bbox_pixels": [
+                87,
+                2267,
+                1240,
+                3067
+              ],
+              "bbox_norm_0_1000": [
+                646,
+                70,
+                874,
+                1000
+              ],
+              "visual_type": "local_detected",
+              "confidence": null,
+              "rank": 1
+            },
+            {
+              "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_10_ilustracao_02.png",
+              "bbox_pixels": [
+                87,
+                1116,
+                1240,
+                1470
+              ],
+              "bbox_norm_0_1000": [
+                318,
+                70,
+                418,
+                1000
+              ],
+              "visual_type": "local_detected",
+              "confidence": null,
+              "rank": 2
+            }
+          ],
+          "detection_mode": "local_connected_components",
+          "output_image": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test18/ilustracoes_local/questao_10_ilustracao_01.png",
+          "bbox_norm_0_1000": [
+            646,
+            70,
+            874,
+            1000
+          ],
+          "bbox_pixels": [
+            87,
+            2267,
+            1240,
+            3067
+          ],
+          "visual_type": "local_detected",
+          "confidence": null
+        }
+      ],
+      "visual_alternatives": null
+    }
+  ]
+}

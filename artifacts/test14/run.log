@@ -1,0 +1,10 @@
+START
+ter 07 abr 2026 15:53:51 -03
+Erro: Cota da Gemini excedida para esta chave/projeto. Verifique faturamento/limites e tente novamente depois.
+stage3_exit=1
+Erro: Cota da Gemini excedida para esta chave/projeto. Verifique faturamento/limites e tente novamente depois.
+stage3_alts_exit=1
+artifacts/test14/input_q5/questao_05.png
+artifacts/test14/run.log
+ter 07 abr 2026 15:53:56 -03
+END

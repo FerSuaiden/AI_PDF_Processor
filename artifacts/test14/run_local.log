@@ -1,0 +1,21 @@
+START_LOCAL
+ter 07 abr 2026 16:17:10 -03
+Stage3 local ilustracoes questao 5: 1 ilustracao(oes)
+Stage3 local ilustracoes salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test14/stage3_local_ilustracoes.json
+stage3_local_illustrations_exit=0
+Stage3 local alts questao 5: OK
+Stage3 local alts salvo em: /home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test14/alternativas_visuais_local.json
+stage3_local_alts_exit=0
+artifacts/test14/alternativas_visuais_local.json
+artifacts/test14/alternativas_visuais_local/questao_05_alt_A.png
+artifacts/test14/alternativas_visuais_local/questao_05_alt_B.png
+artifacts/test14/alternativas_visuais_local/questao_05_alt_C.png
+artifacts/test14/alternativas_visuais_local/questao_05_alt_D.png
+artifacts/test14/alternativas_visuais_local/questao_05_alt_E.png
+artifacts/test14/ilustracoes_local/questao_05_ilustracao.png
+artifacts/test14/input_q5/questao_05.png
+artifacts/test14/run_local.log
+artifacts/test14/run.log
+artifacts/test14/stage3_local_ilustracoes.json
+ter 07 abr 2026 16:17:16 -03
+END_LOCAL

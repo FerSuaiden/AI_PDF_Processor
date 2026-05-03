@@ -106,4 +106,28 @@ python gemini_prova_3_prompts.py run fuvest2026-fase1-prova-V1.pdf --max-pages 7
 
 # Pular stage3 da API (quando cota estiver estourada)
 python gemini_prova_3_prompts.py run fuvest2026-fase1-prova-V1.pdf --skip-stage3
+
+# Usar detector local de ilustracoes (sem gastar creditos Gemini)
+python gemini_prova_3_prompts.py run fuvest2026-fase1-prova-V1.pdf --local-stage3
 ```
+
+## Stage3 local (sem API)
+
+Para extrair ilustracoes sem Gemini, inclusive com suporte a mais de uma ilustracao por questao:
+
+```bash
+python gemini_prova_3_prompts.py stage3-local-illustrations \
+   --question-images-dir banco_imagens_fuvest_final \
+   --output-dir artifacts/ilustracoes \
+   --output-metadata artifacts/stage3_ilustracoes.json
+```
+
+Observacoes:
+
+- O script considera apenas arquivos no formato `questao_XX.png` como entrada base.
+- Arquivos como `questao_14_ilustracao.png` nao entram como entrada do stage3.
+
+## Scripts em not used
+
+Os scripts em `not used/` sao experimentais e nao fazem parte do fluxo principal atual.
+Isso inclui `not used/aaaa.py` e `not used/bbbbb.py`.

@@ -1,0 +1,108 @@
+{
+  "source_pdf": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/fuvest2024_primeira_fase_prova_V.pdf",
+  "source_stage2": "/home/fersuaiden/Área de trabalho/Pessoal/multi_agent_PDF_Processor/artifacts/test20/stage2_page_plan.json",
+  "page_range": {
+    "start_page": 2,
+    "end_page": 3
+  },
+  "questions": [
+    {
+      "question_id": 1,
+      "page_numbers": [
+        2
+      ],
+      "enunciado": "O verso “É tempo de formar novos quilombos” é um exemplo de",
+      "alternativas": {
+        "A": "paradoxo, na medida em que propõe retomar o passado \nnum contexto atual.",
+        "B": "metonímia, já que os quilombos fazem parte de um novo \ncontexto cultural, sem relação com o passado.",
+        "C": "metáfora, representando uma união coletiva como forma \nde resistência social.",
+        "D": "antítese, ao relacionar a noção de tempo passado a uma \nnova configuração de futuro.",
+        "E": "hipérbole, apresentando o termo “quilombos” no plural \npara indicar o grau de difusão do movimento."
+      }
+    },
+    {
+      "question_id": 2,
+      "page_numbers": [
+        2
+      ],
+      "enunciado": "Considerando o enfoque do texto na denúncia social, o eu \nlírico revela, predominantemente,",
+      "alternativas": {
+        "A": "a crítica às reações da nossa sociedade frente aos \nproblemas que ficaram no passado.",
+        "B": "as justificativas para a segregação social no mundo \ncontemporâneo.",
+        "C": "a s t e n s õ e s s o c i a i s p r e s e n t e s h á t e m p o s , s o b a l u z d o s \nembates do momento atual.",
+        "D": "a importância de contornar os problemas sociais do \npassado.",
+        "E": "as peculiaridades das diferentes classes sociais ao \nenfrentar os problemas sociais atuais."
+      }
+    },
+    {
+      "question_id": 3,
+      "page_numbers": [
+        2
+      ],
+      "enunciado": "A arte foi e ainda pode ser utilizada para criar, reforçar e \ndisseminar ideias, valores e estereótipos, mas também pode \ncolocá-los em discussão. A obr a “Sentem para jantar”, de Gê \nViana, faz parte da série “Atualizações traumáticas de \nDebret”, na qual o artista propõe uma revisão iconográfica da \nhistória do Brasil tendo como referência as obras de Jean-\nBaptiste Debret, especificamente aquelas presentes em \n“Viagem Pitoresca e Histór ica ao Brasil” (1834-1839), \npublicação que pautou de maneira imagética o período \ncolonial brasileiro. Em sua revisão, Gê Viana dá continuidade \nao seu projeto de análise crítica de representações históricas, \nproduzindo releituras de algumas dessas obras, dentre as \nquais, a obra “Um jantar brasileiro”, do artista francês. A \nseguir, são reproduzidos os quadros desses dois artistas. \nJean-Baptiste Debret. “Um jantar brasileiro”, 1827. Aquarela, 1 5,7 x 22 cm. \nDisponível em http://museuscastromaya.com.br/. \nGê Viana. “Sentem para jantar”, 2021. Impressão em jato de tint a com \npigmento natural de colagem digi tal sobre papel Hahnemuhle Phot o Rag \n308 g/m2; 29,7 x 42 cm. Disponível em https://mam.rio/ge-viana/. \nCom base nas informações e imagens apresentadas, assinale \na alternativa que corresponde à abordagem adotada por Gê \nViana em sua obra “Sentem para jantar”, ao utilizar como \nreferência a obra “Um jantar b rasileiro”, de Jean-Baptiste \nDebret.",
+      "alternativas": {
+        "A": "G ê V i a n a r e p r o d u z , e m s u a o b r a , a s m e s m a s r e l a ç õ e s \nsociais representadas na obra de Debret.",
+        "B": "Gê Viana exalta, em sua obra, especialmente as \ncaracterísticas físicas das pessoas retratadas, enquanto \nDebret enfatiza as relações pessoais.",
+        "C": "Gê Viana emprega, em sua obra, as mesmas técnicas e os \nmesmos materiais utilizados na obra de Debret, o que lhes \nconfere grande semelhança.",
+        "D": "Gê Viana ignora aspectos relacionados a questões étnico-\nraciais em sua releitura da obra de Debret, focando apenas \nna estética visual da obra.",
+        "E": "Gê Viana busca desconstruir, em sua obra, os estereótipos \nétnico-raciais presentes na obra original de Debret.\n\nConcurso Vestibular FUVEST 2024 - Prova V \n \nTEXTO PARA AS QUESTÕES 04 E 05 \n \n \nDisponível em https://www.tate.org.uk/art/artworks/."
+      }
+    },
+    {
+      "question_id": 4,
+      "page_numbers": [
+        3
+      ],
+      "enunciado": "No anúncio, o segmento “won’t bestow mega-buck prices” \nindica",
+      "alternativas": {
+        "A": "a tentativa de angariar fundos para patrocinar artistas \niniciantes.",
+        "B": "a falta de incentivo dos museus a pintores vanguardistas.",
+        "C": "a possibilidade de redução dos valores financeiros de \nobras de arte consagradas.",
+        "D": "a ausência de qualidade artística de quadros tradicionais.",
+        "E": "a crise financeira vivida por galerias de arte famosas."
+      }
+    },
+    {
+      "question_id": 5,
+      "page_numbers": [
+        3
+      ],
+      "enunciado": "Considerado o contexto, a expressão “be worth” tem sentido \nde",
+      "alternativas": {
+        "A": "prontidão.",
+        "B": "esperteza.",
+        "C": "valorização.",
+        "D": "apelo.",
+        "E": "experimento."
+      }
+    },
+    {
+      "question_id": 6,
+      "page_numbers": [
+        3
+      ],
+      "enunciado": "“Na coluna do ativo como na do passivo, seria difícil exagerar \no papel do açúcar na história do Brasil colonial. Se ele foi o \nproduto que proporcionou a base inicial solidamente \neconômica para o esforço do colonizador, foi também o que \nplasmou o regime de propriedade latifundiária, instalou a \nescravidão africana na América portuguesa e, no seu \nexclusivismo, inibiu o desenvolvimento da policultura (...), \ne m b o r a e s t i m u l a n d o , e m á r e a s a p a r t a d a s , a p e c u á r i a e a \nlavoura de subsistência. (...) Ele desenvolveu um estilo de vida \nque marcou a existência de todas as camadas da população \nque integrou, reservando, contudo, seus privilégios a uns \npoucos.” \nMELLO, Evaldo Cabral de. Um imenso Portugal: História e historiografia. São \nPaulo: Ed. 34, 2002. p.110. \nO texto indica que, no Nordeste açucareiro dos séculos XVI e \nXVII,",
+      "alternativas": {
+        "A": "a mão de obra de escravizados de origem africana e \ni n d í g e n a e r a e m p r e g a d a n o s c a n a v i a i s , n a p e c u á r i a e n a \nlavoura de subsistência.",
+        "B": "a distribuição de terras baseava-se na concessão, pela \nCoroa portuguesa, de privilégios e pequenos lotes a \ndonatários.",
+        "C": "os privilégios concentravam-se nas mãos dos senhores de \nengenho, em detrimento da população escravizada ou \nlivre e pobre.",
+        "D": "o desenvolvimento de relações socioeconômicas fundadas \nna horizontalidade recebia estímulos governamentais.",
+        "E": "o modo de produção feudal prevaleceu na exploração \nagrícola pela metrópole."
+      }
+    },
+    {
+      "question_id": 7,
+      "page_numbers": [
+        3
+      ],
+      "enunciado": "A charge de Angelo Agostini fo i publicada em 1880, em meio \naos debates sobre a Lei dos Sexagenários no parlamento \nbrasileiro. \nAngelo Agostini. “Escravidão ou morte”, Revista Illustrada n.222 (RJ), 1880. \nA charge",
+      "alternativas": {
+        "A": "endossa a defesa, pelos setores políticos liberais, do \nemprego de trabalhadores brancos, representados nas \nlaterais do monumento.",
+        "B": "critica a concepção de ind ependência manifesta na \nestátua equestre de Pedro I e a defesa da extinção do \ntráfico de escravizados.",
+        "C": "expõe a contradição entre a liberdade expressa na estátua \nequestre de Pedro I e as mazelas enfrentadas pelos \nescravizados.",
+        "D": "defende a manutenção da escravidão, em oposição à \nexploração do trabalho compulsório de indígenas e de \nimigrantes europeus.",
+        "E": "expressa a indignação dos proprietários rurais, grupo \nsocial hegemônico, diante da redução gradual do trabalho \nescravo."
+      }
+    }
+  ]
+}
